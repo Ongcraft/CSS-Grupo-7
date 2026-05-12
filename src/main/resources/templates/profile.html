@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container profile-container">
+
+    <h2>Perfil</h2>
+
+    <p>
+        <strong>Nome:</strong> 
+        <span th:text="${customer.name}"></span>
+    </p>
+    <p>
+        <strong>Nome de Utilizador:</strong> 
+        <span th:text="${customer.username}"></span>
+    </p>
+    <p> 
+        <strong>Número de Orders:</strong>
+        <span th:text="${customer.orderCount}"></span>
+    </p>
+
+    <table id="addressTable" class="address-table">
+        <thead>
+            <tr>
+                <th>Cidade</th>
+                <th>Código postal</th>
+                <th>Rua</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="address, iterStat : ${addresses}">
+                 <!-- Cidade -->
+                <td th:text="${address.city}"></td>
+
+                <!-- Código postal -->
+                <td th:text="${address.postalCode}"></td>
+
+                <!-- Rua -->
+                <td th:text="${address.street}"></td>
+
+                <!-- Ação: Eliminar -->
+                <td>
+                    <form th:action="@{/web/profile/delete-address}" method="post" class="delete-address-form">
+                        <input type="hidden" name="addressIndex" th:value="${iterStat.index}">
+                        <button type="submit" class="delete-address-button">Eliminar</button>
+                    </form>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="profile-actions">
+        <form th:action="@{/web/profile/edit}" method="get">
+            <input type="hidden" name="id" th:value="${customer.id}">
+            <button type="submit">Editar Perfil</button>
+        </form>
+
+        <form th:action="@{/web/profile/add-address}" method="get">
+            <input type="hidden" name="id" th:value="${customer.id}">
+            <button type="submit">Adicionar Morada</button>
+        </form>
+
+        <div class="back-action">
+            <a th:href="@{/web/dashboard}">
+                <button type="button">Voltar</button>
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

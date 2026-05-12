@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container dashboard-container">
+
+    <h2>Menu</h2>
+
+    <div class="dashboard-menu">
+        <!-- Ver Restaurants + Criar Order -->
+        <a th:href="@{/web/restaurants}">
+            <button type="button">Restaurantes</button>
+        </a>
+
+        <!-- Ver Orders -->
+        <a th:href="@{/web/orders}">
+            <button type="button">Minhas Orders</button>
+        </a>
+
+        <!-- Ver Perfil -->
+        <a th:href="@{/web/profile}">
+            <button type="button">Meu Perfil</button>
+        </a>
+
+        <!-- Logout -->
+        <form th:action="@{/web/logout}" method="post">
+            <button type="submit">Logout</button>
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

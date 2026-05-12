@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html land="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurantes - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container restaurants-container">
+
+        <h2>Restaurantes</h2>
+
+        <!-- FILTROS -->
+        <div id="filters" class="filters-section">
+            <h3>Filtros</h3>
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="filterName">Nome:</label>
+                    <input type="text" id="filterName" placeholder="Procurar por nome...">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterKitchenType">Tipo de Cozinha:</label>
+                    <select id="filterKitchenType">
+                        <option value="">Todos</option>
+                        <option value="CHINESA">Chinesa</option>
+                        <option value="MEXICANA">Mexicana</option>
+                        <option value="JAPONESA">Japonesa</option>
+                        <option value="ARGENTINA">Argentina</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterOpen">Estado:</label>
+                    <select id="filterOpen">
+                        <option value="">Todos</option>
+                        <option value="true">Aberto</option>
+                        <option value="false">Fechado</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterRating">Avaliação Mínima:</label>
+                    <input type="number" id="filterRating" min="0" max="5" step="0.1" placeholder="0-5">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterCity">Cidade:</label>
+                    <input type="text" id="filterCity" placeholder="Procurar por cidade...">
+                </div>
+
+                <button id="clearFilters" type="button" class="clear-filters-btn">Limpar Filtros</button>
+            </div>
+        </div>
+
+        <table id="restaurantsTable" class="restaurants-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Tipo de cozinha</th>
+                    <th>Avaliação</th>
+                    <th>Estado</th>
+                    <th>Morada</th>
+                    <th>Visualizar</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="restaurant : ${restaurants}" 
+                    class="restaurant-row"
+                    th:data-name="${restaurant.name}"
+                    th:data-kitchen-type="${restaurant.kitchenType}"
+                    th:data-rating="${restaurant.rating}"
+                    th:data-open="${restaurant.open}"
+                    th:data-city="${restaurant.address.city}">
+
+                    <!-- Nome -->
+                    <td th:text="${restaurant.name}"></td>
+
+                    <!-- Tipo de cozinha -->
+                    <td th:text="${restaurant.kitchenType}"></td>
+
+                    <!-- Avaliação -->
+                    <td th:text="${#numbers.formatDecimal(restaurant.rating, 1, 1)}"></td>
+
+                    <!-- Estado -->
+                    <td th:text="${restaurant.open} ? 'ABERTO' : 'FECHADO'"></td>
+
+                    <!-- Morada -->
+                    <td th:text="${restaurant.address.street} + ', ' + ${restaurant.address.city}"></td>
+
+                    <!-- Botão Ver -->
+                    <td>
+                        <a th:href="@{/web/restaurant(id=${restaurant.id})}" class="view-btn">Ver</a>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="restaurant-actions">
+            <div class="create-order-action">
+                <a th:href="@{/web/cart}">
+                    <button type="button">Meu Carrinho</button>
+                </a>
+            </div>
+            <div class="back-action">
+                <a th:href="@{/web/dashboard}">
+                    <button type="button">Voltar</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterName = document.getElementById('filterName');
+        const filterKitchenType = document.getElementById('filterKitchenType');
+        const filterOpen = document.getElementById('filterOpen');
+        const filterRating = document.getElementById('filterRating');
+        const filterCity = document.getElementById('filterCity');
+        const clearBtn = document.getElementById('clearFilters');
+        const rows = document.querySelectorAll('.restaurant-row');
+
+        function applyFilters() {
+            const nameValue = filterName.value.toLowerCase();
+            const kitchenValue = filterKitchenType.value;
+            const openValue = filterOpen.value;
+            const ratingValue = filterRating.value ? parseFloat(filterRating.value) : null;
+            const cityValue = filterCity.value.toLowerCase();
+
+            rows.forEach(row => {
+                let show = true;
+
+                // Filtro de nome
+                if (nameValue && !row.dataset.name.toLowerCase().includes(nameValue)) {
+                    show = false;
+                }
+
+                // Filtro de tipo de cozinha
+                if (kitchenValue && row.dataset.kitchenType !== kitchenValue) {
+                    show = false;
+                }
+
+                // Filtro de estado
+                if (openValue !== '' && row.dataset.open !== openValue) {
+                    show = false;
+                }
+
+                // Filtro de avaliação mínima
+                if (ratingValue > 5) filterRating.value = 5.0;
+                if (ratingValue < 0) filterRating.value = 0.0;
+
+                if (ratingValue !== null && parseFloat(row.dataset.rating) < ratingValue) {
+                    show = false;
+                }
+
+                // Filtro de cidade
+                if (cityValue && !row.dataset.city.toLowerCase().includes(cityValue)) {
+                    show = false;
+                }
+
+                row.style.display = show ? '' : 'none';
+            });
+        }
+
+        function clearAllFilters() {
+            filterName.value = '';
+            filterKitchenType.value = '';
+            filterOpen.value = '';
+            filterRating.value = '';
+            filterCity.value = '';
+            applyFilters();
+        }
+
+        filterName.addEventListener('input', applyFilters);
+        filterKitchenType.addEventListener('change', applyFilters);
+        filterOpen.addEventListener('change', applyFilters);
+        filterRating.addEventListener('input', applyFilters);
+        filterCity.addEventListener('input', applyFilters);
+        clearBtn.addEventListener('click', clearAllFilters);
+    });
+    </script>
+</body>
+</html>

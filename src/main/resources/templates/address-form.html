@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Adicionar Morada - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container add-address-form-container">
+
+    <h2>Adicionar Morada</h2>
+
+    <form th:action="@{/web/profile/add-address}" method="post" class="address-form">
+
+        <div class="form-group">
+            <label for="city">Cidade</label>
+            <input type="text" id="city" name="city" required>
+        </div>
+
+        <div class="form-group">
+            <label for="street">Rua</label>
+            <input type="text" id="street" name="street" required>
+        </div>
+
+        <div class="form-group">
+            <label for="postalCode">Código Postal</label>
+            <input type="text" id="postalCode" name="postalCode" required>
+        </div>
+
+        <div class="add-address-actions">
+            <button type="submit" class="add-address-button">Adicionar Morada</button>
+            <a th:href="@{/web/profile}" class="cancel-address-creation-button">
+                <button type="button">Cancelar</button>
+            </a>
+        </div>
+    </form>
+</body>
+</html>

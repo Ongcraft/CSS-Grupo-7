@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar order - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container order-form-container">
+
+    <h2>Criar Nova Order</h2>
+
+    <form th:action="@{/web/orders/new}" method="post" class="order-form">
+
+        <div class="form-group">
+            <label for="addressIndex">Morada de Entrega</label>
+            <select id="addressIndex" name="addressIndex" required>
+                <option value="" disabled selected>-- Selecione uma morada --</option>
+                <option th:each="address,iter : ${addresses}" 
+                        th:value="${iter.index}" 
+                        th:text="${address.street} + ', ' + ${address.postalCode} + ' ' + ${address.city}">
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Tipo de Pagamento</label>
+            <select name="paymentType" id="paymentType" onchange="toggleFields()">
+                <option value="CASH">Dinheiro</option>
+                <option value="MBWAY">MBWay</option>
+                <option value="MULTIBANCO">Multibanco</option>
+            </select>
+        </div>
+
+        <!-- MBWAY -->
+        <div class="form-group" id="mbwayField" style="display:none;">
+            <label>Número de Telemóvel</label>
+            <input type="text" name="phoneNumber">
+        </div>
+
+        <!-- MULTIBANCO -->
+        <div class="form-group" id="cardField" style="display:none;">
+            <label>Tipo de Cartão</label>
+            <select name="cardFlag">
+                <option value="" disabled selected>-- Escolher --</option>
+                <option value="VISA">VISA</option>
+                <option value="MASTERCARD">MASTERCARD</option>
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit"class="create-order-button">Criar Order</button>
+            <a th:href="@{/web/orders}" class="cancel-order-creation-button">
+                <button type="button">Cancelar</button>
+            </a>
+        </div>
+
+    </form>
+
+
+
+</body>
+<script>
+    function toggleFields() {
+        const type = document.getElementById("paymentType").value;
+
+        document.getElementById("mbwayField").style.display =
+            type === "MBWAY" ? "block" : "none";
+
+        document.getElementById("cardField").style.display =
+            type === "MULTIBANCO" ? "block" : "none";
+    }
+</script>
+</html>

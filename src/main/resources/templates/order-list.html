@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>As Minhas Orders - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container orders-container">
+
+    <h2>As Minhas Orders</h2>
+
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Valor (€)</th>
+                <th>Estado</th>
+                <th>Visualizar</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="order : ${orders}">
+
+                <!-- Data -->
+                <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+
+                <!-- Total -->
+                <td th:text="${order.total} + '€'"></td>
+
+                <!-- Estado -->
+                <td th:text="${order.orderStatus}"></td>
+
+                <!-- Botão Ver -->
+                <td>
+                    <a th:href="@{/web/order(id=${order.id})}" class="view-btn">Ver</a>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="back-action">
+        <a th:href="@{/web/dashboard}">
+             <button type="button">Voltar</button>
+        </a>
+    </div>
+    
+</div>
+
+</body>
+</html>

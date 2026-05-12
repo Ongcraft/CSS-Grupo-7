@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html land="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurantes - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container restaurant-container">
+
+        <h2 th:text="${restaurant.name}"></h2>
+
+        <!-- FILTROS -->
+        <div id="filters" class="filters-section">
+            <h3>Filtros</h3>
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="filterProductName">Nome:</label>
+                    <input type="text" id="filterProductName" placeholder="Procurar por nome...">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterCategory">Categoria:</label>
+                    <select id="filterCategory">
+                        <option value="">Todas</option>
+                        <option value="ENTRADA">Entrada</option>
+                        <option value="PRINCIPAL">Prato Principal</option>
+                        <option value="SOBREMESA">Sobremesa</option>
+                        <option value="BEBIDA">Bebida</option>
+                        <option value="ACOMPANHAMENTO">Acompanhamento</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterPrice">Preço Máximo:</label>
+                    <input type="number" id="filterPrice" min="0" step="0.01" placeholder="Preço máximo...">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterPopularity">Popularidade Mínima:</label>
+                    <input type="number" id="filterPopularity" min="0" step="1" placeholder="Nº mínimo de pedidos...">
+                </div>
+
+                <button id="clearFilters" type="button" class="clear-filters-btn">Limpar Filtros</button>
+            </div>
+        </div>
+
+        <table id="productsTable" class="restaurant-table">
+            <thead>
+                <tr>
+                    <th>Nome do Produto</th>
+                    <th>Descrição</th>
+                    <th>Preço</th>
+                    <th>Categoria</th>
+                    <th>Popularidade</th>
+                    <th>Disponibilidade</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="product : ${menu}"
+                    class="product-row"
+                    th:data-name="${product.name}"
+                    th:data-category="${product.category}"
+                    th:data-price="${product.price}"
+                    th:data-popularity="${product.popularity != null ? product.popularity : 0}">
+
+                    <!-- Nome do Produto -->
+                    <td th:text="${product.name}"></td>
+
+                    <!-- Descrição -->
+                    <td th:text="${product.description}"></td>
+
+                    <!-- Preço -->
+                    <td th:text="${#numbers.formatDecimal(product.price, 1, 2)}"></td>
+
+                    <!-- Categoria -->
+                    <td th:text="${product.category}"></td>
+
+                    <!-- Popularidade -->
+                    <td class="popularity-cell" th:text="${product.popularity != null ? product.popularity : 0}"></td>
+
+                    <!-- Disponibilidade -->
+                    <td th:text="${product.available} ? 'Disponível' : 'Indisponível'"></td>
+
+                    <!-- Botão Adicionar ao Carrinho -->
+                    <td class="add-to-cart-cell">
+                        <form method="post" th:action="@{/web/cart/add}" class="add-to-cart-form">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <input type="hidden" name="restaurantId" th:value="${restaurant.id}">
+                            <input type="number" name="quantity" value="1" min="1" max="99" class="quantity-input">
+                            <button type="submit" class="add-to-cart-btn" th:disabled="${!product.available}">Adicionar</button>
+                        </form>
+                    </td>
+                    
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="back-action">
+            <a th:href="@{/web/restaurants}">
+                <button type="button">Voltar</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterProductName = document.getElementById('filterProductName');
+        const filterCategory = document.getElementById('filterCategory');
+        const filterPrice = document.getElementById('filterPrice');
+        const filterPopularity = document.getElementById('filterPopularity');
+        const clearBtn = document.getElementById('clearFilters');
+        const rows = document.querySelectorAll('.product-row');
+
+        function applyFilters() {
+            const nameValue = filterProductName.value.toLowerCase();
+            const categoryValue = filterCategory.value;
+            const priceValue = filterPrice.value ? parseFloat(filterPrice.value) : null;
+            const popularityValue = filterPopularity.value ? parseInt(filterPopularity.value) : null;
+
+            rows.forEach(row => {
+                let show = true;
+
+                // Filtro de nome
+                if (nameValue && !row.dataset.name.toLowerCase().includes(nameValue)) {
+                    show = false;
+                }
+
+                // Filtro de categoria
+                if (categoryValue && row.dataset.category !== categoryValue) {
+                    show = false;
+                }
+
+                // Filtro de preço máximo
+                if (priceValue !== null && parseFloat(row.dataset.price) > priceValue) {
+                    show = false;
+                }
+
+                // Filtro de popularidade mínima
+                if (popularityValue !== null && parseInt(row.dataset.popularity) < popularityValue) {
+                    show = false;
+                }
+
+                row.style.display = show ? '' : 'none';
+            });
+        }
+
+        function clearAllFilters() {
+            filterProductName.value = '';
+            filterCategory.value = '';
+            filterPrice.value = '';
+            filterPopularity.value = '';
+            applyFilters();
+        }
+
+        filterProductName.addEventListener('input', applyFilters);
+        filterCategory.addEventListener('change', applyFilters);
+        filterPrice.addEventListener('input', applyFilters);
+        filterPopularity.addEventListener('input', applyFilters);
+        clearBtn.addEventListener('click', clearAllFilters);
+    });
+    </script>
+</body>
+</html>

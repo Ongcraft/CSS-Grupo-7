@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package tascaeats;
+
+option java_package = "pt.ul.fc.css.tascaeats.grpc";
+option java_multiple_files = true;
+option java_outer_classname = "TascaEatsProto";
+
+// Serviços
+
+service MenuService {
+
+}
+
+service OrderService {
+    
+}
+
+service ProductService {
+    
+}
+
+service RestaurantService {
+    rpc GetRestaurantByFilter (RestaurantFilterRequest) returns (RestaurantResponse);
+    rpc GetRestaurantById (RestaurantIdRequest) returns (RestaurantResponse);
+    
+    rpc CreateRestaurant (CreateRestaurantRequest) returns (RestaurantResponse);
+
+    rpc OpenRestaurant (RestaurantIdRequest) returns (Empty);
+    rpc CloseRestaurant (RestaurantIdRequest) returns (Empty);
+
+
+}
+
+service UserService {
+    rpc Login (LoginRequest) returns (LoginResponse);
+
+    rpc CreateAdmin (CreateAdminRequest) returns (UserResponse);
+    rpc CreateCourier (CreateCourierRequest) returns (UserResponse);
+    // rpc CreateCustomer (CreateCustomerRequest) returns (UserResponse);
+
+    rpc RemoveUser (UserIdRequest) returns (BooleanResponse);
+
+    rpc UpdateAdmin (UpdateAdminRequest) returns (UserResponse);
+    rpc UpdateCourier (UpdateCourierRequest) returns (UserResponse);
+    rpc UpdateCustomer (UpdateCustomerRequest) returns (UserResponse);
+
+    rpc GetUserById (UserIdRequest) returns (UserResponse);
+    rpc GetAllUsers (Empty) returns (UserListResponse);
+}
+
+// Global Messages --------------------------------------------
+
+message Empty {}
+
+message BooleanResponse {
+    bool value = 1;
+}
+
+message AddressProto {
+    string city = 1;
+    string postalCode = 2;
+    string street = 3;
+}
+
+// User Messages --------------------------------------------
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string userId = 1;
+    string role = 2;
+    string name = 3;
+    string email = 4;
+}
+
+message CreateAdminRequest {
+    string name = 1;
+    string email = 2;
+    string password = 3;
+}
+
+message CreateCourierRequest {
+    string name = 1;
+    string email = 2;
+    string password = 3;  
+}
+
+// message CreateCustomerRequest {
+//     string name = 1;
+//     string email = 2;
+//     string password = 3;
+//     AddressProto address = 4;  
+// }
+
+message UpdateAdminRequest {
+    string userId = 1;
+    string name = 2;
+    string email = 3;
+    string password = 4;
+}
+
+message UpdateCourierRequest {
+    string userId = 1;
+    string name = 2;
+    string email = 3;
+    string password = 4;    
+}
+
+message UpdateCustomerRequest {
+    string userId = 1;
+    string name = 2;
+    string email = 3;
+    string password = 4;
+    AddressProto address = 5;
+}
+
+message UserResponse {
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string role = 4;
+}
+
+message UserIdRequest {
+    string userId = 1;
+}
+
+message UserListResponse {
+    repeated UserResponse users = 1;
+}
+
+// Restaurants Messages --------------------------------------------
+
+message RestaurantFilterRequest {
+    string name = 1;
+    int32 nPedidosRealizados = 2;
+    int32 nAvaliacoesRecebidas = 3;
+    AddressProto address = 4;
+    string kitchenType = 5;
+    bool open = 6;
+    double price = 7;
+}
+
+message CreateRestaurantRequest {
+    string name = 1;
+    string nif = 2;
+    AddressProto address = 3;
+    string kitchenType = 4;
+}
+
+message RestaurantResponse {
+    string id = 1;
+    double rating = 2;
+    string name = 3;
+    string nif = 4;
+    AddressProto address = 5;
+    string menuId = 6;
+    bool open = 7;
+}
+
+message RestaurantIdRequest {
+    string restaurantId = 1;
+}

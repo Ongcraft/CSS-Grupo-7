@@ -1,0 +1,588 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Corpo */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* Container genérico */
+.container {
+    width: 450px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+}
+
+/* Títulos */
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Grupos de formulário */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* Labels */
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+}
+
+/* Select */
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    font-family: Arial, sans-serif;
+}
+
+/* Botões */
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+/* Erros */
+.error {
+    color: red;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* =============================
+   DASHBOARD
+   ============================= */
+
+.dashboard-container {
+    width: 450px;
+}
+
+.dashboard-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.dashboard-menu a,
+.dashboard-menu form {
+    width: 100%;
+}
+
+.dashboard-menu button {
+    width: 100%;
+}
+
+/* =============================
+   ORDER LIST
+   ============================= */
+
+.orders-container {
+    width: 800px;
+}
+
+/* tabela */
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed;
+}
+
+/* header */
+.orders-table thead {
+    background-color: #333;
+    color: white;
+}
+
+/* células */
+.orders-table th,
+.orders-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* linhas */
+.orders-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* botão */
+.view-btn {
+    width: 80px;
+    padding: 6px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+}
+
+.view-btn:hover {
+    background-color: #555;
+}
+
+/* botões criar e voltar */
+
+.create-order-action {
+    margin-top: 20px;
+    flex: 1;
+}
+
+.create-order-action a {
+    display: block;
+}
+
+.create-order-action button {
+    width: 100%;
+}
+
+.back-action {
+    margin-top: 20px;
+    flex: 1;
+}
+
+.back-action a {
+    display: block;
+}
+
+.back-action button {
+    width: 100%;
+}
+
+/* =============================
+   ORDER DETAILS
+   ============================= */
+
+.order-container {
+    width: 800px;
+}
+
+/* info */
+.order-info {
+    margin-bottom: 20px;
+}
+
+.order-info p {
+    margin: 5px 0;
+}
+
+/* total row */
+.total-row {
+    background-color: #eee;
+}
+
+/* ações */
+.order-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.order-actions form,
+.order-actions a {
+    flex: 1;
+    min-width: 150px;
+}
+
+.order-actions form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.order-actions form select,
+.order-actions form input,
+.order-actions form button {
+    width: 100%;
+}
+/*==============================
+   ORDER FORM
+   ============================= */
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.create-order-button {
+    flex: 1;
+}
+
+.cancel-order-creation-button {
+    flex: 1;
+}
+
+/* =============================
+   PAYMENT
+   ============================= */
+
+.payment-container {
+    width: 450px;
+}
+
+.payment-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.payment-actions button,
+.payment-actions a {
+    flex: 1;
+}
+
+.payment-actions button {
+    width: 100%;
+}
+
+/* =============================
+   RESTAURANT LIST
+   ============================= */
+
+.restaurants-container {
+    width: 800px;
+}
+
+/* tabela */
+.restaurants-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed;
+}
+
+/* header */
+.restaurants-table thead {
+    background-color: #333;
+    color: white;
+}
+
+/* células */
+.restaurants-table th,
+.restaurants-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* linhas */
+.restaurants-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* ações */
+.restaurant-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.restaurant-actions form,
+.restaurant-actions a {
+    flex: 1;
+}
+
+.restaurant-actions button {
+    width: 100%;
+}
+
+/* =============================
+   RESTAURANT DETAILS
+   ============================= */
+.restaurant-container {
+    width: 800px;
+}
+
+/* tabela */
+.restaurant-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed;
+}
+
+/* header */
+.restaurant-table thead {
+    background-color: #333;
+    color: white;
+}
+
+/* células */
+.restaurant-table th,
+.restaurant-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* linhas */
+.restaurant-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* =============================
+   RESTAURANT TABLE - ADD TO CART BUTTON
+   ============================= */
+.add-to-cart-form {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: 5px;
+}
+
+.quantity-input {
+    padding: 5px;
+}
+
+.add-to-cart-btn {
+    width: 80px;
+    padding: 5px;
+    white-space: nowrap;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #555;
+}
+
+/* =============================
+   CART
+   ============================= */
+.cart-container {
+    width: 800px;
+}
+
+/* tabela */
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed;
+}
+
+/* header */
+.cart-table thead {
+    background-color: #333;
+    color: white;
+}
+
+/* células */
+.cart-table th,
+.cart-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* linhas */
+.cart-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* ações */
+.cart-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.clear-cart-action {
+    margin-top: 20px;
+    flex: 1;
+}
+
+.cart-actions button {
+    width: 100%;
+}
+
+/* =============================
+   RATING TABLE
+   ============================= */
+.rating-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    table-layout: auto;
+}
+
+.rating-table thead {
+    background-color: #333;
+    color: white;
+}
+
+.rating-table th,
+.rating-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.rating-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.rating-select {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+}
+
+#submitRatingsBtn {
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#submitRatingsBtn:hover {
+    background-color: #555;
+}
+
+/* =============================
+   FILTROS
+    ============================= */
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+/* =============================
+   PROFILE
+   ============================= */
+
+.profile-container {
+    width: 600px;
+    max-width: 90%;
+}
+
+/* tabela */
+.address-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed;
+}
+
+/* header */
+.address-table thead {
+    background-color: #333;
+    color: white;
+}
+
+/* células */
+.address-table th,
+.address-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* linhas */
+.address-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* ações */
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+ 
+.profile-actions form {
+    margin-top: 20px;
+    flex: 1;
+}
+
+.profile-actions div {
+    flex: 1;
+}
+
+.profile-actions button {
+    width: 100%;
+}
+
+/* =============================
+   ADDRESS FORM
+   ============================= */
+
+.add-address-form-container {
+    width: 800px;
+}
+
+.add-address-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.add-address-actions button,
+.add-address-actions a {
+    flex: 1;
+}
+
+/* =============================
+   EDIT PROFILE FORM
+   ============================= */
+
+.edit-profile-form-container {
+    width: 800px;
+}
+
+.edit-profile-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.edit-profile-actions button,
+.edit-profile-actions a {
+    flex: 1;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

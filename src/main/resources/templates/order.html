@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes da Order - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container order-container">
+
+    <h2>Detalhes da Order</h2>
+
+    <p th:if="${error}" class="error" th:text="${error}"></p>
+
+    <!-- INFO -->
+    <div class="order-info">
+        <p><strong>ID:</strong> <span th:text="${order.id}"></span></p>
+        <p><strong>Data:</strong> 
+            <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+        </p>
+        <p><strong>Estado:</strong> <span th:text="${order.orderStatus}"></span></p>
+    </div>
+
+    <!-- TABELA PRODUTOS -->
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="item : ${order.items}">
+                
+                <!-- Nome do produto (via service no controller) -->
+                <td th:text="${item.productName}"></td>
+
+                <!-- Quantidade -->
+                <td th:text="${item.quantity}"></td>
+
+                <!-- Preço total por item -->
+                <td th:text="${item.totalPrice} + '€'"></td>
+            </tr>
+
+            <!-- TOTAL FINAL -->
+            <tr class="total-row">
+                <td><strong>Total</strong></td>
+                <td></td>
+                <td><strong th:text="${order.total} + '€'"></strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Rating - Apenas em DELIVERED -->
+    <div id="ratingSection" th:if="${order.orderStatus.name() == 'DELIVERED' && !order.restaurants.isEmpty()}">
+        <h3>Avaliar Restaurantes</h3>
+        
+        <table id="ratingTable" class="rating-table">
+            <thead>
+                <tr>
+                    <th>Restaurante</th>
+                    <th>Produtos Pedidos</th>
+                    <th>Avaliação</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="restaurant : ${order.restaurants}" th:data-restaurant-id="${restaurant.id}">
+                    <td th:text="${restaurant.name}"></td>
+                    <td>
+                        <span th:each="item, itemStat : ${order.items}" th:if="${item.restaurantId == restaurant.id}">
+                            <span th:text="${item.productName + ' (x' + item.quantity + ')'}"></span>
+                            <span th:if="!${itemStat.last}">, </span>
+                        </span>
+                    </td>
+                    <td>
+                        <select class="rating-select" th:data-restaurant-id="${restaurant.id}" th:data-order-id="${order.id}">
+                            <option value="">Selecione uma avaliação</option>
+                            <option value="1">1 - Péssimo</option>
+                            <option value="2">2 - Ruim</option>
+                            <option value="3">3 - Aceitável</option>
+                            <option value="4">4 - Bom</option>
+                            <option value="5">5 - Excelente</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button id="submitRatingsBtn" type="button">Submeter Avaliações</button>
+    </div>
+    
+    <!-- BOTÕES -->
+    <div class="order-actions">
+
+        <!-- Cancelar - Apenas em CREATED ou PAID -->
+        <form th:action="@{/web/order/cancel}" method="post" th:if="${order.orderStatus.name() == 'CREATED' || order.orderStatus.name() == 'PAID'}">
+            <input type="hidden" name="orderId" th:value="${order.id}">
+            <button type="submit">Cancelar</button>
+        </form>
+
+        <!-- Pagar - Apenas em CREATED -->
+        <form th:action="@{/web/payment}" method="get" th:if="${order.orderStatus.name() == 'CREATED'}">
+            <input type="hidden" name="id" th:value="${order.id}">
+            <button type="submit">Pagar</button>
+        </form>
+
+        <!-- Voltar -->
+        <a th:href="@{/web/orders}">
+            <button type="button">Voltar</button>
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const submitBtn = document.getElementById('submitRatingsBtn');
+    const ratingSection = document.getElementById('ratingSection');
+    const ratingTable = document.getElementById('ratingTable');
+
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+            const selects = document.querySelectorAll('.rating-select');
+            let submittedCount = 0;
+
+            selects.forEach(select => {
+                const rating = select.value;
+                const restaurantId = select.dataset.restaurantId;
+                const orderId = select.dataset.orderId;
+
+                // Apenas submete se uma avaliação foi selecionada
+                if (rating && rating !== '') {
+                    const formData = new FormData();
+                    formData.append('orderId', orderId);
+                    formData.append('restaurantId', restaurantId);
+                    formData.append('rating', rating);
+                    submittedCount++;
+
+                    fetch('/web/order/rate', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // Remove a linha da tabela
+                            const row = select.closest('tr');
+                            row.remove();
+                            
+                            // Verifica se ainda há linhas na tabela
+                            const tbody = ratingTable.querySelector('tbody');
+                            if (tbody.rows.length === 0) {
+                                ratingSection.style.display = 'none';
+                            }
+                        } else {
+                            alert('Erro ao submeter avaliação para o restaurante ' + restaurantId);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao submeter avaliação');
+                    });
+                }
+            });
+
+            if (submittedCount === 0) {
+                alert('Por favor, selecione uma avaliação para pelo menos um restaurante.');
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>
