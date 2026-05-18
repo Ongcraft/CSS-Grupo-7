@@ -1,4 +1,4 @@
-FROM maven:3.9.14-eclipse-temurin-17-alpine as builder
+FROM maven:3.9.14-eclipse-temurin-17 as builder
 ADD pom.xml .
 RUN mvn dependency:go-offline
 COPY . .
@@ -9,5 +9,5 @@ VOLUME /tmp
 RUN mkdir -p /app/
 RUN mkdir -p /app/logs/
 COPY --from=builder /target/tascaeats-1.0.jar app/app.jar
-EXPOSE 8080 8082
+EXPOSE 8080 9090
 ENTRYPOINT ["java","-jar", "/app/app.jar"]

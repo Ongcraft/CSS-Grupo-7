@@ -6,162 +6,417 @@ option java_package = "pt.ul.fc.css.tascaeats.grpc";
 option java_multiple_files = true;
 option java_outer_classname = "TascaEatsProto";
 
-// Serviços
+// -------------------- Services --------------------
 
-service MenuService {
+service UserService {
+  rpc Login (LoginRequest) returns (LoginResponse);
 
-}
+  rpc CreateCustomer (CreateCustomerRequest) returns (UserResponse);
+  rpc CreateAdmin (CreateAdminRequest) returns (UserResponse);
+  rpc CreateCourier (CreateCourierRequest) returns (UserResponse);
 
-service OrderService {
-    
-}
+  rpc RemoveUser (UserIdRequest) returns (BooleanResponse);
 
-service ProductService {
-    
+  rpc UpdateCustomer (UpdateCustomerRequest) returns (UserResponse);
+  rpc UpdateAdmin (UpdateAdminRequest) returns (UserResponse);
+  rpc UpdateCourier (UpdateCourierRequest) returns (UserResponse);
+
+  rpc GetUserById (UserIdRequest) returns (UserResponse);
+  rpc GetUsersByFilter (UserFilterRequest) returns (UserListResponse);
+
+  rpc AddAddressToCustomer (AddAddressRequest) returns (UserResponse);
 }
 
 service RestaurantService {
-    rpc GetRestaurantByFilter (RestaurantFilterRequest) returns (RestaurantResponse);
-    rpc GetRestaurantById (RestaurantIdRequest) returns (RestaurantResponse);
-    
-    rpc CreateRestaurant (CreateRestaurantRequest) returns (RestaurantResponse);
+  rpc CreateRestaurant (CreateRestaurantRequest) returns (RestaurantResponse);
+  rpc UpdateRestaurant (UpdateRestaurantRequest) returns (RestaurantResponse);
+  rpc GetRestaurantById (RestaurantIdRequest) returns (RestaurantResponse);
+  rpc GetRestaurantsByFilter (RestaurantFilterRequest) returns (RestaurantListResponse);
 
-    rpc OpenRestaurant (RestaurantIdRequest) returns (Empty);
-    rpc CloseRestaurant (RestaurantIdRequest) returns (Empty);
+  rpc OpenRestaurant (RestaurantIdRequest) returns (Empty);
+  rpc CloseRestaurant (RestaurantIdRequest) returns (Empty);
 
-
+  rpc AssociateMenuToRestaurant (AssociateMenuRequest) returns (RestaurantResponse);
 }
 
-service UserService {
-    rpc Login (LoginRequest) returns (LoginResponse);
+service MenuService {
+  rpc CreateMenu (CreateMenuRequest) returns (MenuResponse);
+  rpc UpdateMenu (UpdateMenuRequest) returns (MenuResponse);
+  rpc RemoveMenu (MenuIdRequest) returns (BooleanResponse);
 
-    rpc CreateAdmin (CreateAdminRequest) returns (UserResponse);
-    rpc CreateCourier (CreateCourierRequest) returns (UserResponse);
-    // rpc CreateCustomer (CreateCustomerRequest) returns (UserResponse);
+  rpc GetMenuById (MenuIdRequest) returns (MenuResponse);
+  rpc GetMenusByFilter (MenuFilterRequest) returns (MenuListResponse);
 
-    rpc RemoveUser (UserIdRequest) returns (BooleanResponse);
-
-    rpc UpdateAdmin (UpdateAdminRequest) returns (UserResponse);
-    rpc UpdateCourier (UpdateCourierRequest) returns (UserResponse);
-    rpc UpdateCustomer (UpdateCustomerRequest) returns (UserResponse);
-
-    rpc GetUserById (UserIdRequest) returns (UserResponse);
-    rpc GetAllUsers (Empty) returns (UserListResponse);
+  rpc AddProductToMenu (AddProductToMenuRequest) returns (MenuResponse);
+  rpc RemoveProductFromMenu (RemoveProductFromMenuRequest) returns (MenuResponse);
 }
 
-// Global Messages --------------------------------------------
+service ProductService {
+  rpc CreateProduct (CreateProductRequest) returns (ProductResponse);
+  rpc UpdateProduct (UpdateProductRequest) returns (ProductResponse);
+  rpc RemoveProduct (ProductIdRequest) returns (BooleanResponse);
+
+  rpc GetProductById (ProductIdRequest) returns (ProductResponse);
+  rpc GetProductsByFilter (ProductFilterRequest) returns (ProductListResponse);
+}
+
+service OrderService {
+  rpc CreateOrder (CreateOrderRequest) returns (OrderResponse);
+  rpc GetOrderById (OrderIdRequest) returns (OrderResponse);
+  rpc GetOrdersByCustomer (UserIdRequest) returns (OrderListResponse);
+
+  rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (OrderResponse);
+  rpc CancelOrder (OrderIdRequest) returns (BooleanResponse);
+
+  rpc AssignCourierToOrder (OrderIdRequest) returns (OrderResponse);
+  rpc AssignCourierManually (AssignCourierRequest) returns (OrderResponse);
+}
+
+service PaymentService {
+  rpc RegisterPayment (CreatePaymentRequest) returns (PaymentResponse);
+  rpc GetPaymentByOrder (OrderIdRequest) returns (PaymentResponse);
+}
+
+service ReviewService {
+  rpc CreateReview (CreateReviewRequest) returns (ReviewResponse);
+  rpc GetReviewsByRestaurant (RestaurantIdRequest) returns (ReviewListResponse);
+}
+
+// -------------------- Global Messages --------------------
 
 message Empty {}
 
 message BooleanResponse {
-    bool value = 1;
+  bool value = 1;
 }
 
 message AddressProto {
-    string city = 1;
-    string postalCode = 2;
-    string street = 3;
+  string city = 1;
+  string postalCode = 2;
+  string street = 3;
 }
 
-// User Messages --------------------------------------------
+// -------------------- User Messages --------------------
 
 message LoginRequest {
-    string email = 1;
-    string password = 2;
+  string username = 1;
+  string password = 2;
 }
 
 message LoginResponse {
-    string userId = 1;
-    string role = 2;
-    string name = 3;
-    string email = 4;
-}
-
-message CreateAdminRequest {
-    string name = 1;
-    string email = 2;
-    string password = 3;
-}
-
-message CreateCourierRequest {
-    string name = 1;
-    string email = 2;
-    string password = 3;  
-}
-
-// message CreateCustomerRequest {
-//     string name = 1;
-//     string email = 2;
-//     string password = 3;
-//     AddressProto address = 4;  
-// }
-
-message UpdateAdminRequest {
-    string userId = 1;
-    string name = 2;
-    string email = 3;
-    string password = 4;
-}
-
-message UpdateCourierRequest {
-    string userId = 1;
-    string name = 2;
-    string email = 3;
-    string password = 4;    
-}
-
-message UpdateCustomerRequest {
-    string userId = 1;
-    string name = 2;
-    string email = 3;
-    string password = 4;
-    AddressProto address = 5;
-}
-
-message UserResponse {
-    string id = 1;
-    string name = 2;
-    string email = 3;
-    string role = 4;
+  string userId = 1;
+  string role = 2;
+  string name = 3;
+  string username = 4;
 }
 
 message UserIdRequest {
-    string userId = 1;
+  string userId = 1;
+}
+
+message CreateCustomerRequest {
+  string name = 1;
+  string username = 2;
+  string password = 3;
+  repeated AddressProto addresses = 4;
+}
+
+message CreateAdminRequest {
+  string name = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message CreateCourierRequest {
+  string name = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message UpdateCustomerRequest {
+  string userId = 1;
+  string name = 2;
+  string username = 3;
+  string password = 4;
+  repeated AddressProto addresses = 5;
+}
+
+message UpdateAdminRequest {
+  string userId = 1;
+  string name = 2;
+  string username = 3;
+  string password = 4;
+}
+
+message UpdateCourierRequest {
+  string userId = 1;
+  string name = 2;
+  string username = 3;
+  string password = 4;
+}
+
+message AddAddressRequest {
+  string customerId = 1;
+  AddressProto address = 2;
+}
+
+message UserResponse {
+  string id = 1;
+  string name = 2;
+  string username = 3;
+  string role = 4;
+  repeated AddressProto addresses = 5;
+  int32 numberOfOrders = 6;
+  int32 numberOfDeliveries = 7;
 }
 
 message UserListResponse {
-    repeated UserResponse users = 1;
+  repeated UserResponse users = 1;
 }
 
-// Restaurants Messages --------------------------------------------
+message UserFilterRequest {
+  string name = 1;
+  string role = 2;
+  int32 minOrders = 3;
+  int32 minDeliveries = 4;
+}
 
-message RestaurantFilterRequest {
-    string name = 1;
-    int32 nPedidosRealizados = 2;
-    int32 nAvaliacoesRecebidas = 3;
-    AddressProto address = 4;
-    string kitchenType = 5;
-    bool open = 6;
-    double price = 7;
+// -------------------- Restaurant Messages --------------------
+
+message RestaurantIdRequest {
+  string restaurantId = 1;
 }
 
 message CreateRestaurantRequest {
-    string name = 1;
-    string nif = 2;
-    AddressProto address = 3;
-    string kitchenType = 4;
+  string name = 1;
+  string nif = 2;
+  AddressProto address = 3;
+  string kitchenType = 4;
+}
+
+message UpdateRestaurantRequest {
+  string restaurantId = 1;
+  string name = 2;
+  string nif = 3;
+  AddressProto address = 4;
+  string kitchenType = 5;
+}
+
+message RestaurantFilterRequest {
+  string name = 1;
+  int32 minOrders = 2;
+  int32 minReviews = 3;
+  AddressProto address = 4;
+  string kitchenType = 5;
+  bool open = 6;
+  double maxAveragePrice = 7;
 }
 
 message RestaurantResponse {
-    string id = 1;
-    double rating = 2;
-    string name = 3;
-    string nif = 4;
-    AddressProto address = 5;
-    string menuId = 6;
-    bool open = 7;
+  string id = 1;
+  double rating = 2;
+  string name = 3;
+  string nif = 4;
+  AddressProto address = 5;
+  string menuId = 6;
+  bool open = 7;
+  string kitchenType = 8;
+  int32 numberOfOrders = 9;
+  int32 numberOfReviews = 10;
+  double averagePrice = 11;
 }
 
-message RestaurantIdRequest {
-    string restaurantId = 1;
+message RestaurantListResponse {
+  repeated RestaurantResponse restaurants = 1;
+}
+
+message AssociateMenuRequest {
+  string restaurantId = 1;
+  string menuId = 2;
+}
+
+// -------------------- Menu Messages --------------------
+
+message MenuIdRequest {
+  string menuId = 1;
+}
+
+message CreateMenuRequest {
+  string name = 1;
+}
+
+message UpdateMenuRequest {
+  string menuId = 1;
+  string name = 2;
+}
+
+message MenuFilterRequest {
+  string name = 1;
+  int32 minProducts = 2;
+  double maxAveragePrice = 3;
+}
+
+message MenuResponse {
+  string id = 1;
+  string name = 2;
+  repeated ProductResponse products = 3;
+  int32 numberOfProducts = 4;
+  double averagePrice = 5;
+}
+
+message MenuListResponse {
+  repeated MenuResponse menus = 1;
+}
+
+message AddProductToMenuRequest {
+  string menuId = 1;
+  string productId = 2;
+}
+
+message RemoveProductFromMenuRequest {
+  string menuId = 1;
+  string productId = 2;
+}
+
+// -------------------- Product Messages --------------------
+
+message ProductIdRequest {
+  string productId = 1;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  string category = 4;
+  bool available = 5;
+}
+
+message UpdateProductRequest {
+  string productId = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string category = 5;
+  bool available = 6;
+}
+
+message ProductFilterRequest {
+  string name = 1;
+  double minPrice = 2;
+  double maxPrice = 3;
+  string category = 4;
+  bool available = 5;
+  int32 minPopularity = 6;
+  string startDate = 7;
+  string endDate = 8;
+}
+
+message ProductResponse {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string category = 5;
+  bool available = 6;
+  int32 popularity = 7;
+}
+
+message ProductListResponse {
+  repeated ProductResponse products = 1;
+}
+
+// -------------------- Order Messages --------------------
+
+message OrderIdRequest {
+  string orderId = 1;
+}
+
+message OrderItemRequest {
+  string productId = 1;
+  int32 quantity = 2;
+}
+
+message CreateOrderRequest {
+  string customerId = 1;
+  repeated OrderItemRequest items = 2;
+  AddressProto deliveryAddress = 3;
+}
+
+message OrderItemResponse {
+  string productId = 1;
+  string productName = 2;
+  int32 quantity = 3;
+  double unitPrice = 4;
+  double subtotal = 5;
+}
+
+message OrderResponse {
+  string id = 1;
+  string customerId = 2;
+  repeated OrderItemResponse items = 3;
+  double totalPrice = 4;
+  string status = 5;
+  AddressProto deliveryAddress = 6;
+  string courierId = 7;
+  string createdAt = 8;
+}
+
+message OrderListResponse {
+  repeated OrderResponse orders = 1;
+}
+
+message UpdateOrderStatusRequest {
+  string orderId = 1;
+  string status = 2;
+}
+
+message AssignCourierRequest {
+  string orderId = 1;
+  string courierId = 2;
+}
+
+// -------------------- Payment Messages --------------------
+
+message CreatePaymentRequest {
+  string orderId = 1;
+  string paymentType = 2;
+
+  string phoneNumber = 3;     // MBWay
+  string cardBrand = 4;       // Multibanco/cartão
+  double cashReceived = 5;    // Numerário
+  double changeAmount = 6;    // Troco
+}
+
+message PaymentResponse {
+  string id = 1;
+  string orderId = 2;
+  string paymentType = 3;
+  bool paid = 4;
+
+  string phoneNumber = 5;
+  string cardBrand = 6;
+  double cashReceived = 7;
+  double changeAmount = 8;
+}
+
+// -------------------- Review Messages --------------------
+
+message CreateReviewRequest {
+  string customerId = 1;
+  string restaurantId = 2;
+  int32 rating = 3;
+  string comment = 4;
+}
+
+message ReviewResponse {
+  string id = 1;
+  string customerId = 2;
+  string restaurantId = 3;
+  int32 rating = 4;
+  string comment = 5;
+}
+
+message ReviewListResponse {
+  repeated ReviewResponse reviews = 1;
 }
