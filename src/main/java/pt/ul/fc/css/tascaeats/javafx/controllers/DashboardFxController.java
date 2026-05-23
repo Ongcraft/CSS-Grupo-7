@@ -536,13 +536,73 @@ public class DashboardFxController {
                         p.getName() + " | " + p.getPrice() + "€ | " + p.getCategory()
                 );
 
-                contentBox.getChildren().add(label);
+                Button updateProductBtn = new Button("Atualizar Produto");
+                updateProductBtn.setOnAction(e -> showUpdateProductForm(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory(), p.getAvailable()
+                ));
+
+                contentBox.getChildren().addAll(label, updateProductBtn);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             contentBox.getChildren().add(new Label("Erro ao carregar produtos."));
         }
+
+        addBackButtonAtBottom();
+    }
+
+    private void showUpdateProductForm(String productId, String currentName, String currentDescription, double currentPrice, String currentCategory, boolean currentAvailable) {
+
+        titleLabel.setText("Atualizar Produto");
+        contentBox.getChildren().clear();
+
+        TextField nameField = new TextField(currentName);
+        nameField.setPromptText("Nome");
+
+        TextField descriptionField = new TextField(currentDescription);
+        descriptionField.setPromptText("Descrição");
+
+        TextField priceField = new TextField(String.valueOf(currentPrice));
+        priceField.setPromptText("Preço");
+
+        ComboBox<FoodCategory> categoryBox = new ComboBox<>();
+        categoryBox.getItems().addAll(FoodCategory.values());
+        categoryBox.setPromptText("Categoria");
+        try {
+            categoryBox.setValue(FoodCategory.valueOf(currentCategory));
+        } catch (IllegalArgumentException ignored) {}
+
+        CheckBox availableBox = new CheckBox("Disponível");
+        availableBox.setSelected(currentAvailable);
+
+        Button submitBtn = new Button("Guardar Alterações");
+        submitBtn.setOnAction(e -> {
+            try {
+                grpcClient.productStub.updateProduct(
+                        UpdateProductRequest.newBuilder()
+                                .setProductId(productId)
+                                .setName(nameField.getText())
+                                .setDescription(descriptionField.getText())
+                                .setPrice(Double.parseDouble(priceField.getText()))
+                                .setCategory(categoryBox.getValue().name())
+                                .setAvailable(availableBox.isSelected())
+                                .build()
+                );
+                showAdminProducts();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                contentBox.getChildren().add(new Label("Erro ao atualizar produto."));
+            }
+        });
+
+        contentBox.getChildren().addAll(
+                nameField,
+                descriptionField,
+                priceField,
+                categoryBox,
+                availableBox,
+                submitBtn
+        );
 
         addBackButtonAtBottom();
     }
