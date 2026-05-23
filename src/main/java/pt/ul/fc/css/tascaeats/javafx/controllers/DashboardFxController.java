@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import pt.ul.fc.css.tascaeats.enums.KitchenType;
+import pt.ul.fc.css.tascaeats.enums.FoodCategory;
 import pt.ul.fc.css.tascaeats.javafx.grpc.GrpcClient;
 import pt.ul.fc.css.tascaeats.grpc.*;
 
@@ -38,14 +40,16 @@ public class DashboardFxController {
         contentBox.getChildren().clear();
 
         Button restaurantsBtn = new Button("Gerir Restaurantes");
+        Button menusBtn = new Button("Gerir Menus");
         Button productsBtn = new Button("Gerir Produtos");
         Button usersBtn = new Button("Gerir Users");
 
         restaurantsBtn.setOnAction(e -> showAdminRestaurants());
+        menusBtn.setOnAction(e -> showAdminMenus());
         productsBtn.setOnAction(e -> showAdminProducts());
         usersBtn.setOnAction(e -> showAdminUsers());
 
-        contentBox.getChildren().addAll(restaurantsBtn, productsBtn, usersBtn);
+        contentBox.getChildren().addAll(restaurantsBtn, menusBtn, productsBtn, usersBtn);
     }
 
     // ================= USERS =================
@@ -155,7 +159,12 @@ public class DashboardFxController {
             }
         });
 
-        contentBox.getChildren().addAll(nameField, usernameField, passwordField, submitBtn);
+        contentBox.getChildren().addAll(
+            nameField, 
+            usernameField, 
+            passwordField, 
+            submitBtn
+        );
         addBackButtonAtBottom();
     }
 
@@ -205,7 +214,12 @@ public class DashboardFxController {
                     }
                 });
 
-                contentBox.getChildren().addAll(label, openBtn, closeBtn, menuBtn);
+                contentBox.getChildren().addAll(
+                    label, 
+                    openBtn, 
+                    closeBtn, 
+                    menuBtn
+                );
             }
 
         } catch (Exception e) {
@@ -213,8 +227,86 @@ public class DashboardFxController {
             contentBox.getChildren().add(new Label("Erro ao carregar restaurantes."));
         }
 
+        Button criarBtn = new Button("Criar Restaurante");
+        criarBtn.setOnAction(e -> showCreateRestaurantForm());
+        contentBox.getChildren().add(criarBtn);
+
         addBackButtonAtBottom();
     }
+
+    private void showCreateRestaurantForm() {
+        titleLabel.setText("Criar Restaurante");
+        contentBox.getChildren().clear();
+
+        TextField restNif = new TextField();
+        restNif.setPromptText("Nif");
+
+        TextField restName = new TextField();
+        restName.setPromptText("Nome");
+    
+        TextField restCity = new TextField();
+        restCity.setPromptText("Cidade");
+        
+        TextField restStreet = new TextField();
+        restStreet.setPromptText("Rua");
+
+        TextField restPostalCode = new TextField();
+        restPostalCode.setPromptText("Codigo Postal");
+        
+        ComboBox<KitchenType> kitchenTypeBox = new ComboBox<>();
+        kitchenTypeBox.getItems().addAll(KitchenType.values());
+        kitchenTypeBox.setPromptText("Tipo de cozinha");
+
+        CheckBox restOpen = new CheckBox("Aberto");
+        restOpen.setSelected(true);
+        
+        Button submitBtn = new Button("Criar Restaurante");
+        submitBtn.setOnAction(e -> {
+            try {
+                RestaurantResponse created = grpcClient.restaurantStub.createRestaurant(
+                    CreateRestaurantRequest.newBuilder()
+                        .setName(restName.getText())
+                        .setNif(restNif.getText())
+                        .setAddress(
+                            AddressProto.newBuilder()
+                                .setCity(restCity.getText())
+                                .setStreet(restStreet.getText())
+                                .setPostalCode(restPostalCode.getText())
+                                .build()
+                        )
+                        .setKitchenType(kitchenTypeBox.getValue().name())
+                        .build()
+                );
+
+                if (restOpen.isSelected()) {
+                    grpcClient.restaurantStub.openRestaurant(
+                        RestaurantIdRequest.newBuilder()
+                            .setRestaurantId(created.getId())
+                            .build()
+                    );
+                }
+
+                showAdminRestaurants();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                contentBox.getChildren().add(new Label("Erro ao criar o restaurante"));
+            }
+        });
+
+        contentBox.getChildren().addAll(
+            restNif,
+            restName,
+            restCity,
+            restStreet,
+            restPostalCode,
+            kitchenTypeBox,
+            restOpen,
+            submitBtn
+        );
+
+        addBackButtonAtBottom();
+    }
+
 
     private void showRestaurantMenu(String menuId, String restaurantName) {
         titleLabel.setText("Menu de " + restaurantName);
@@ -237,6 +329,134 @@ public class DashboardFxController {
             e.printStackTrace();
             contentBox.getChildren().add(new Label("Erro ao carregar menu."));
         }
+
+        addBackButtonAtBottom();
+    }
+
+    
+    // ================= MENUS =================
+
+    private void showAdminMenus() {
+        titleLabel.setText("Gerir Menus");
+        contentBox.getChildren().clear();
+
+
+        try {
+            var response = grpcClient.menuStub.getMenusByFilter(
+                    MenuFilterRequest.newBuilder().build()
+            );
+
+            for (var m : response.getMenusList()) {
+                Label label = new Label(
+                        m.getName() + " | " + m.getNumberOfProducts() + " produtos | preço médio: " + String.format("%.2f", m.getAveragePrice()) + "€"
+                );
+
+                Button verProdutosBtn = new Button("Ver Produtos");
+                Button removerBtn = new Button("Remover");
+
+                verProdutosBtn.setOnAction(e -> showMenuProducts(m.getId(), m.getName()));
+
+                removerBtn.setOnAction(e -> {
+                    try {
+                        grpcClient.menuStub.removeMenu(
+                                MenuIdRequest.newBuilder()
+                                        .setMenuId(m.getId())
+                                        .build()
+                        );
+                        showAdminMenus();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        contentBox.getChildren().add(new Label("Erro ao remover menu."));
+                    }
+                });
+
+                contentBox.getChildren().addAll(label, verProdutosBtn, removerBtn);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            contentBox.getChildren().add(new Label("Erro ao carregar menus."));
+        }
+        
+        Button criarBtn = new Button("Criar Menu");
+        criarBtn.setOnAction(e -> showCreateMenuForm());
+        contentBox.getChildren().add(criarBtn);
+        
+        addBackButtonAtBottom();
+    }
+
+    private void showMenuProducts(String menuId, String menuName) {
+        titleLabel.setText("Produtos — " + menuName);
+        contentBox.getChildren().clear();
+
+        try {
+            var menu = grpcClient.menuStub.getMenuById(
+                    MenuIdRequest.newBuilder().setMenuId(menuId).build()
+            );
+
+            if (menu.getProductsList().isEmpty()) {
+                contentBox.getChildren().add(new Label("Este menu não tem produtos."));
+            }
+
+            for (var p : menu.getProductsList()) {
+                Label label = new Label(
+                        p.getName() + " | " + p.getPrice() + "€ | " + p.getCategory()
+                );
+
+                Button removeFromMenuBtn = new Button("Remover do Menu");
+                removeFromMenuBtn.setOnAction(e -> {
+                    try {
+                        grpcClient.menuStub.removeProductFromMenu(
+                                RemoveProductFromMenuRequest.newBuilder()
+                                        .setMenuId(menuId)
+                                        .setProductId(p.getId())
+                                        .build()
+                        );
+                        showMenuProducts(menuId, menuName);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        contentBox.getChildren().add(new Label("Erro ao remover produto do menu."));
+                    }
+                });
+
+                contentBox.getChildren().addAll(label, removeFromMenuBtn);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            contentBox.getChildren().add(new Label("Erro ao carregar produtos."));
+        }
+
+        addBackButtonAtBottom();
+    }
+    
+    private void showCreateMenuForm() {
+        titleLabel.setText("Criar Menu");
+        contentBox.getChildren().clear();
+
+        TextField restName = new TextField();
+        restName.setPromptText("Nome");
+
+        Button submitBtn = new Button("Criar Menu");
+        submitBtn.setOnAction(e -> {
+            try {
+                grpcClient.menuStub.createMenu(
+                    CreateMenuRequest.newBuilder()
+                        .setName(restName.getText())
+                        .build()  
+                );
+
+                showAdminMenus();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                contentBox.getChildren().add(new Label("Erro ao criar o menu"));
+            }
+        });
+
+        contentBox.getChildren().addAll(
+            restName,
+            submitBtn  
+        );
 
         addBackButtonAtBottom();
     }
@@ -286,8 +506,9 @@ public class DashboardFxController {
         TextField priceField = new TextField();
         priceField.setPromptText("Preço");
 
-        TextField categoryField = new TextField();
-        categoryField.setPromptText("Categoria ex: MAIN_COURSE");
+        ComboBox<FoodCategory> categoryBox = new ComboBox<>();
+        categoryBox.getItems().addAll(FoodCategory.values());
+        categoryBox.setPromptText("Categoria");
 
         CheckBox availableBox = new CheckBox("Disponível");
         availableBox.setSelected(true);
@@ -301,7 +522,7 @@ public class DashboardFxController {
                                 .setName(nameField.getText())
                                 .setDescription(descriptionField.getText())
                                 .setPrice(Double.parseDouble(priceField.getText()))
-                                .setCategory(categoryField.getText())
+                                .setCategory(categoryBox.getValue().name())
                                 .setAvailable(availableBox.isSelected())
                                 .build()
                 );
@@ -318,7 +539,7 @@ public class DashboardFxController {
                 nameField,
                 descriptionField,
                 priceField,
-                categoryField,
+                categoryBox,
                 availableBox,
                 submitBtn
         );

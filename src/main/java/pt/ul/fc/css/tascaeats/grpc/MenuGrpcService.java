@@ -5,11 +5,13 @@ import java.util.UUID;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.entities.Menu;
 import pt.ul.fc.css.tascaeats.entities.Product;
 import pt.ul.fc.css.tascaeats.services.MenuService;
 
 @GrpcService
+@Transactional
 public class MenuGrpcService extends MenuServiceGrpc.MenuServiceImplBase {
 
     private final MenuService menuService;
