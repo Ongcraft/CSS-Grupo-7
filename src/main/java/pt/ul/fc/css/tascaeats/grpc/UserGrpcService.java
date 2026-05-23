@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.dtos.user.CreateAdminDTO;
 import pt.ul.fc.css.tascaeats.dtos.user.CreateCourierDTO;
 import pt.ul.fc.css.tascaeats.dtos.user.LoginUserDTO;
@@ -12,6 +13,7 @@ import pt.ul.fc.css.tascaeats.entities.User;
 import pt.ul.fc.css.tascaeats.services.UserService;
 
 @GrpcService
+@Transactional
 public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
 
     private final UserService userService;

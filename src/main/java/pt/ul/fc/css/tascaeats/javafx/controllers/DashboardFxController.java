@@ -352,9 +352,12 @@ public class DashboardFxController {
                 );
 
                 Button verProdutosBtn = new Button("Ver Produtos");
+                Button linkRestBtn = new Button("Associar Restaurante");
                 Button removerBtn = new Button("Remover");
 
                 verProdutosBtn.setOnAction(e -> showMenuProducts(m.getId(), m.getName()));
+                
+                linkRestBtn.setOnAction(e -> linkRestToMenu(m.getId()));
 
                 removerBtn.setOnAction(e -> {
                     try {
@@ -370,7 +373,7 @@ public class DashboardFxController {
                     }
                 });
 
-                contentBox.getChildren().addAll(label, verProdutosBtn, removerBtn);
+                contentBox.getChildren().addAll(label, verProdutosBtn, linkRestBtn, removerBtn);
             }
 
         } catch (Exception e) {
@@ -381,7 +384,58 @@ public class DashboardFxController {
         Button criarBtn = new Button("Criar Menu");
         criarBtn.setOnAction(e -> showCreateMenuForm());
         contentBox.getChildren().add(criarBtn);
-        
+
+        addBackButtonAtBottom();
+    }
+
+    private void linkRestToMenu(String menuId) {
+        titleLabel.setText("Associar Restaurante ao Menu");
+        contentBox.getChildren().clear();
+
+        ComboBox<String> restaurantBox = new ComboBox<>();
+        restaurantBox.setPromptText("Selecionar restaurante");
+
+        java.util.Map<String, String> nameToId = new java.util.HashMap<>();
+
+        try {
+            var response = grpcClient.restaurantStub.getRestaurantsByFilter(
+                    RestaurantFilterRequest.newBuilder().build()
+            );
+            for (var r : response.getRestaurantsList()) {
+                restaurantBox.getItems().add(r.getName());
+                nameToId.put(r.getName(), r.getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            contentBox.getChildren().add(new Label("Erro ao carregar restaurantes."));
+            addBackButtonAtBottom();
+            return;
+        }
+
+        Button submitBtn = new Button("Associar");
+        submitBtn.setOnAction(e -> {
+            try {
+                String selected = restaurantBox.getValue();
+                if (selected == null) {
+                    contentBox.getChildren().add(new Label("Seleciona um restaurante."));
+                    return;
+                }
+
+                grpcClient.restaurantStub.associateMenuToRestaurant(
+                        AssociateMenuRequest.newBuilder()
+                                .setRestaurantId(nameToId.get(selected))
+                                .setMenuId(menuId)
+                                .build()
+                );
+
+                showAdminMenus();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                contentBox.getChildren().add(new Label("Erro ao associar restaurante."));
+            }
+        });
+
+        contentBox.getChildren().addAll(restaurantBox, submitBtn);
         addBackButtonAtBottom();
     }
 

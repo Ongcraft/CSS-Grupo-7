@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.dtos.order.PaymentDTO;
 import pt.ul.fc.css.tascaeats.entities.CashPayment;
 import pt.ul.fc.css.tascaeats.entities.MBWayPayment;
@@ -15,6 +16,7 @@ import pt.ul.fc.css.tascaeats.enums.PaymentType;
 import pt.ul.fc.css.tascaeats.services.OrderService;
 
 @GrpcService
+@Transactional
 public class PaymentGrpcService extends PaymentServiceGrpc.PaymentServiceImplBase {
 
     private final OrderService orderService;

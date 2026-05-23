@@ -4,12 +4,14 @@ import java.util.UUID;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.dtos.order.OrderDTO;
 import pt.ul.fc.css.tascaeats.entities.Order;
 import pt.ul.fc.css.tascaeats.entities.OrderItem;
 import pt.ul.fc.css.tascaeats.services.OrderService;
 
 @GrpcService
+@Transactional
 public class OrderGrpcService extends OrderServiceGrpc.OrderServiceImplBase {
 
     private final OrderService orderService;

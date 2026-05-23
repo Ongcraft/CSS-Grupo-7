@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.dtos.product.CreateProductDTO;
 import pt.ul.fc.css.tascaeats.dtos.product.UpdateProductDTO;
 import pt.ul.fc.css.tascaeats.entities.Product;
@@ -12,6 +13,7 @@ import pt.ul.fc.css.tascaeats.enums.FoodCategory;
 import pt.ul.fc.css.tascaeats.services.ProductService;
 
 @GrpcService
+@Transactional
 public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBase {
 
     private final ProductService productService;

@@ -57,7 +57,7 @@ public class MenuService {
         return menuRepo.save(menu);
     }
 
-    public Menu addRestaurantToMenu(UUID id, UUID restaurantId) { 
+    public Menu addRestaurantToMenu(UUID id, UUID restaurantId) {
         Menu menu = getMenubyId(id);
         Restaurant restaurant = restaurantRepo.findById(restaurantId).orElseThrow(() -> new EntityNotFoundException("Restaurant", restaurantId));
 
@@ -71,7 +71,6 @@ public class MenuService {
         Restaurant restaurant = restaurantRepo.findById(restaurantId).orElseThrow(() -> new EntityNotFoundException("Restaurant", restaurantId));
 
         menu.removeRestaurant(restaurant);
-        restaurant.setMenu(null);
         return menuRepo.save(menu);
     }
 

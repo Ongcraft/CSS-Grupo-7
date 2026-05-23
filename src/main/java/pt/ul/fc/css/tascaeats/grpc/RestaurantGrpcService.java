@@ -7,6 +7,7 @@ import pt.ul.fc.css.tascaeats.dtos.restaurant.CreateRestaurantDTO;
 import pt.ul.fc.css.tascaeats.entities.Restaurant;
 import pt.ul.fc.css.tascaeats.enums.KitchenType;
 import pt.ul.fc.css.tascaeats.services.RestaurantService;
+import pt.ul.fc.css.tascaeats.services.MenuService;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,9 +16,11 @@ import java.util.UUID;
 public class RestaurantGrpcService extends RestaurantServiceGrpc.RestaurantServiceImplBase {
 
     private final RestaurantService restaurantService;
+    private final MenuService menuService;
 
-    public RestaurantGrpcService(RestaurantService restaurantService) {
+    public RestaurantGrpcService(RestaurantService restaurantService, MenuService menuService) {
         this.restaurantService = restaurantService;
+        this.menuService = menuService;
     }
 
     @Override
@@ -102,6 +105,28 @@ public class RestaurantGrpcService extends RestaurantServiceGrpc.RestaurantServi
             }
 
             responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            responseObserver.onError(e);
+        }
+    }
+
+    @Override
+    public void associateMenuToRestaurant(AssociateMenuRequest request, StreamObserver<RestaurantResponse> responseObserver) {
+        try {
+            UUID restaurantId = UUID.fromString(request.getRestaurantId());
+            UUID menuId = UUID.fromString(request.getMenuId());
+
+            Restaurant current = restaurantService.getById(restaurantId);
+            if (current.getMenu() != null) {
+                menuService.removeRestaurantFromMenu(current.getMenu().getId(), restaurantId);
+            }
+
+            menuService.addRestaurantToMenu(menuId, restaurantId);
+
+            Restaurant updated = restaurantService.getById(restaurantId);
+            responseObserver.onNext(toGrpcRestaurantResponse(updated));
             responseObserver.onCompleted();
 
         } catch (Exception e) {
