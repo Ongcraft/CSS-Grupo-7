@@ -160,6 +160,10 @@ public class Restaurant {
     this.menu = menu;
   }
 
+  public void clearMenu() {
+    this.menu = null;
+  }
+
   public Menu getMenu() {
       return this.menu;
   }

@@ -187,4 +187,10 @@ public class OrderService {
         .map(OrderDTO::new)
         .toList();
   }
+
+  public List<Order> getOrdersByCourierId(UUID courierId) {
+    return orderRepo.findAll().stream()
+        .filter(o -> o.getCourier() != null && o.getCourier().getId().equals(courierId))
+        .toList();
+  }
 }

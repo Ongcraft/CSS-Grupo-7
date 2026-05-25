@@ -71,7 +71,19 @@ public class MenuService {
         Restaurant restaurant = restaurantRepo.findById(restaurantId).orElseThrow(() -> new EntityNotFoundException("Restaurant", restaurantId));
 
         menu.removeRestaurant(restaurant);
+        restaurant.clearMenu();
+        restaurantRepo.save(restaurant);
         return menuRepo.save(menu);
+    }
+
+    public void removeMenu(UUID id) {
+        Menu menu = getMenubyId(id);
+        
+        for (Restaurant restaurant : menu.getRestaurants()) {
+            restaurant.clearMenu();
+            restaurantRepo.save(restaurant);
+        }
+        menuRepo.delete(menu);
     }
 
     public List<Menu> search(String nome, Integer nProdutos, Double preçoMedio) {

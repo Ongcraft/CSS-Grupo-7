@@ -50,7 +50,7 @@ public class ProductService {
  
     public Product updateProduct(UUID productId, UpdateProductDTO dto) {
         Product product = getProductById(productId);
-        product.update(dto.name(), dto.description(), dto.price(), dto.available());
+        product.update(dto.name(), dto.description(), dto.price(), dto.available(), dto.category());
         return productRepo.save(product);
     }
     

@@ -2,6 +2,7 @@ package pt.ul.fc.css.tascaeats.grpc;
 
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.dtos.common.AddressDTO;
 import pt.ul.fc.css.tascaeats.dtos.restaurant.CreateRestaurantDTO;
 import pt.ul.fc.css.tascaeats.entities.Restaurant;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @GrpcService
+@Transactional
 public class RestaurantGrpcService extends RestaurantServiceGrpc.RestaurantServiceImplBase {
 
     private final RestaurantService restaurantService;

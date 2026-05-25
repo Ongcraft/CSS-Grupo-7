@@ -64,6 +64,8 @@ service OrderService {
   rpc CreateOrder (CreateOrderRequest) returns (OrderResponse);
   rpc GetOrderById (OrderIdRequest) returns (OrderResponse);
   rpc GetOrdersByCustomer (UserIdRequest) returns (OrderListResponse);
+  rpc GetAllOrders (Empty) returns (OrderListResponse);
+  rpc GetOrdersByCourier (UserIdRequest) returns (OrderListResponse);
 
   rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (OrderResponse);
   rpc CancelOrder (OrderIdRequest) returns (BooleanResponse);

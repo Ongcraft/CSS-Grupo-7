@@ -43,13 +43,15 @@ public class DashboardFxController {
         Button menusBtn = new Button("Gerir Menus");
         Button productsBtn = new Button("Gerir Produtos");
         Button usersBtn = new Button("Gerir Users");
+        Button ordersBtn = new Button("Gerir Pedidos");
 
         restaurantsBtn.setOnAction(e -> showAdminRestaurants());
         menusBtn.setOnAction(e -> showAdminMenus());
         productsBtn.setOnAction(e -> showAdminProducts());
         usersBtn.setOnAction(e -> showAdminUsers());
+        ordersBtn.setOnAction(e -> showAdminOrders());
 
-        contentBox.getChildren().addAll(restaurantsBtn, menusBtn, productsBtn, usersBtn);
+        contentBox.getChildren().addAll(restaurantsBtn, menusBtn, productsBtn, usersBtn, ordersBtn);
     }
 
     // ================= USERS =================
@@ -440,7 +442,7 @@ public class DashboardFxController {
     }
 
     private void showMenuProducts(String menuId, String menuName) {
-        titleLabel.setText("Produtos — " + menuName);
+        titleLabel.setText("Produtos - " + menuName);
         contentBox.getChildren().clear();
 
         try {
@@ -661,6 +663,139 @@ public class DashboardFxController {
         addBackButtonAtBottom();
     }
 
+    // ================= ORDERS =================
+
+    private void showAdminOrders() {
+        titleLabel.setText("Gerir Pedidos");
+        contentBox.getChildren().clear();
+
+        try {
+            var response = grpcClient.orderStub.getAllOrders(Empty.newBuilder().build());
+
+            if (response.getOrdersList().isEmpty()) {
+                contentBox.getChildren().add(new Label("Não existem pedidos."));
+            }
+
+            for (var order : response.getOrdersList()) {
+                contentBox.getChildren().add(
+                    new Label(
+                        "Pedido " + order.getId() + " | Estado: " + order.getStatus() + " | Total: " + String.format("%.2f", order.getTotalPrice()) + "€"
+                    )
+                );
+
+                switch (order.getStatus()) {
+                    case "CREATED" -> {
+                        Button cancelBtn = new Button("Cancelar");
+                        cancelBtn.setOnAction(e -> {
+                            try {
+                                grpcClient.orderStub.cancelOrder(
+                                        OrderIdRequest.newBuilder().setOrderId(order.getId()).build()
+                                );
+                                showAdminOrders();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                contentBox.getChildren().add(new Label("Erro ao cancelar pedido."));
+                            }
+                        });
+                        contentBox.getChildren().add(cancelBtn);
+                    }
+                    case "PAID" -> {
+                        Button prepareBtn = new Button("Preparar");
+                        Button cancelBtn = new Button("Cancelar");
+                        prepareBtn.setOnAction(e -> {
+                            try {
+                                grpcClient.orderStub.updateOrderStatus(
+                                        UpdateOrderStatusRequest.newBuilder()
+                                                .setOrderId(order.getId())
+                                                .setStatus("PREPARING")
+                                                .build()
+                                );
+                                showAdminOrders();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                contentBox.getChildren().add(new Label("Erro ao preparar pedido."));
+                            }
+                        });
+                        cancelBtn.setOnAction(e -> {
+                            try {
+                                grpcClient.orderStub.cancelOrder(
+                                        OrderIdRequest.newBuilder().setOrderId(order.getId()).build()
+                                );
+                                showAdminOrders();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                contentBox.getChildren().add(new Label("Erro ao cancelar pedido."));
+                            }
+                        });
+                        contentBox.getChildren().addAll(prepareBtn, cancelBtn);
+                    }
+                    case "PREPARING" -> {
+                        Button readyBtn = new Button("Marcar como Pronto");
+                        readyBtn.setOnAction(e -> {
+                            try {
+                                grpcClient.orderStub.updateOrderStatus(
+                                        UpdateOrderStatusRequest.newBuilder()
+                                                .setOrderId(order.getId())
+                                                .setStatus("READY")
+                                                .build()
+                                );
+                                showAdminOrders();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                contentBox.getChildren().add(new Label("Erro ao marcar pedido como pronto."));
+                            }
+                        });
+                        contentBox.getChildren().add(readyBtn);
+                    }
+                    case "READY" -> {
+                        if (order.getCourierId().isBlank()) {
+                            Button assignBtn = new Button("Atribuir Courier");
+                            assignBtn.setOnAction(e -> {
+                                try {
+                                    grpcClient.orderStub.assignCourierToOrder(
+                                            OrderIdRequest.newBuilder().setOrderId(order.getId()).build()
+                                    );
+                                    showAdminOrders();
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                    contentBox.getChildren().add(new Label("Erro ao atribuir courier."));
+                                }
+                            });
+                            contentBox.getChildren().add(assignBtn);
+                        } else {
+                            contentBox.getChildren().add(new Label("Courier atribuído, aguarde o início de entrega"));
+                        }
+                    }
+                    case "DELIVERING" -> {
+                        Button deliveredBtn = new Button("Marcar como Entregue");
+                        deliveredBtn.setOnAction(e -> {
+                            try {
+                                grpcClient.orderStub.updateOrderStatus(
+                                        UpdateOrderStatusRequest.newBuilder()
+                                                .setOrderId(order.getId())
+                                                .setStatus("DELIVERED")
+                                                .build()
+                                );
+                                showAdminOrders();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                contentBox.getChildren().add(new Label("Erro ao marcar pedido como entregue."));
+                            }
+                        });
+                        contentBox.getChildren().add(deliveredBtn);
+                    }
+                    default -> {}
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            contentBox.getChildren().add(new Label("Erro ao carregar pedidos."));
+        }
+
+        addBackButtonAtBottom();
+    }
+
     // ================= COURIER =================
 
     private void loadCourierView() {
@@ -675,12 +810,71 @@ public class DashboardFxController {
     }
 
     private void showCourierOrders() {
-        titleLabel.setText("Pedidos Courier");
+        titleLabel.setText("Os Meus Pedidos");
         contentBox.getChildren().clear();
 
-        contentBox.getChildren().add(
-                new Label("Aqui ficam os pedidos atribuídos/entregas do courier.")
-        );
+        try {
+            var response = grpcClient.orderStub.getOrdersByCourier(
+                    UserIdRequest.newBuilder().setUserId(userId).build()
+            );
+
+            if (response.getOrdersList().isEmpty()) {
+                contentBox.getChildren().add(new Label("Não tens pedidos atribuídos."));
+            }
+
+            for (var order : response.getOrdersList()) {
+                contentBox.getChildren().add(
+                    new Label(
+                        "Pedido " + order.getId() + " | Estado: " + order.getStatus() + " | Total: " + String.format("%.2f", order.getTotalPrice()) + "€"
+                    )
+                );
+
+                switch (order.getStatus()) {
+                    case "READY" -> {
+                        Button startBtn = new Button("Iniciar Entrega");
+                        startBtn.setOnAction(e -> {
+                            try {
+                                grpcClient.orderStub.updateOrderStatus(
+                                        UpdateOrderStatusRequest.newBuilder()
+                                                .setOrderId(order.getId())
+                                                .setStatus("DELIVERING")
+                                                .build()
+                                );
+                                showCourierOrders();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                contentBox.getChildren().add(new Label("Erro ao iniciar entrega."));
+                            }
+                        });
+                        contentBox.getChildren().add(startBtn);
+                    }
+                    case "DELIVERING" -> {
+                        Button doneBtn = new Button("Marcar como Entregue");
+                        doneBtn.setOnAction(e -> {
+                            try {
+                                grpcClient.orderStub.updateOrderStatus(
+                                        UpdateOrderStatusRequest.newBuilder()
+                                                .setOrderId(order.getId())
+                                                .setStatus("DELIVERED")
+                                                .build()
+                                );
+                                showCourierOrders();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                contentBox.getChildren().add(new Label("Erro ao marcar como entregue."));
+                            }
+                        });
+                        contentBox.getChildren().add(doneBtn);
+                    }
+                    default -> {}
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            contentBox.getChildren().add(new Label("Erro ao carregar pedidos."));
+        }
 
         addBackButtonAtBottom();
     }

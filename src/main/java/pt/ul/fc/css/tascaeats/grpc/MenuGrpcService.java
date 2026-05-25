@@ -87,6 +87,19 @@ public class MenuGrpcService extends MenuServiceGrpc.MenuServiceImplBase {
     }
 
     @Override
+    public void removeMenu(MenuIdRequest request, StreamObserver<BooleanResponse> responseObserver) {
+        try {
+            menuService.removeMenu(UUID.fromString(request.getMenuId()));
+
+            responseObserver.onNext(BooleanResponse.newBuilder().setValue(true).build());
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            responseObserver.onError(e);
+        }
+    }
+
+    @Override
     public void removeProductFromMenu(RemoveProductFromMenuRequest request, StreamObserver<MenuResponse> responseObserver) {
         try {
             Menu menu = menuService.removeProductFromMenu(

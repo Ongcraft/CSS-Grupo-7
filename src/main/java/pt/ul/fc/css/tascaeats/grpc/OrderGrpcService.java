@@ -59,6 +59,65 @@ public class OrderGrpcService extends OrderServiceGrpc.OrderServiceImplBase {
     }
 
     @Override
+    public void getOrdersByCourier(UserIdRequest request,
+                                   StreamObserver<OrderListResponse> responseObserver) {
+        try {
+            var orders = orderService.getOrdersByCourierId(UUID.fromString(request.getUserId()));
+
+            OrderListResponse.Builder response = OrderListResponse.newBuilder();
+            for (Order order : orders) {
+                response.addOrders(toGrpcOrderResponse(order));
+            }
+
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            responseObserver.onError(e);
+        }
+    }
+
+    @Override
+    public void getAllOrders(Empty request,
+                             StreamObserver<OrderListResponse> responseObserver) {
+        try {
+            var orders = orderService.getAllOrders();
+
+            OrderListResponse.Builder response = OrderListResponse.newBuilder();
+            for (Order order : orders) {
+                response.addOrders(toGrpcOrderResponse(order));
+            }
+
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            responseObserver.onError(e);
+        }
+    }
+
+    @Override
+    public void updateOrderStatus(UpdateOrderStatusRequest request,
+                                  StreamObserver<OrderResponse> responseObserver) {
+        try {
+            UUID orderId = UUID.fromString(request.getOrderId());
+            Order order = switch (request.getStatus()) {
+                case "PREPARING"  -> orderService.prepareOrder(orderId);
+                case "READY"      -> orderService.markOrderReady(orderId);
+                case "DELIVERING" -> orderService.startDelivery(orderId);
+                case "DELIVERED"  -> orderService.completeDelivery(orderId);
+                default -> throw new IllegalArgumentException("Unknown status: " + request.getStatus());
+            };
+
+            responseObserver.onNext(toGrpcOrderResponse(order));
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            responseObserver.onError(e);
+        }
+    }
+
+    @Override
     public void cancelOrder(OrderIdRequest request,
                             StreamObserver<BooleanResponse> responseObserver) {
         try {

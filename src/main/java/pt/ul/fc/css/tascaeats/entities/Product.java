@@ -120,7 +120,7 @@ public class Product {
   //   this.restaurant = restaurant;
   // }
 
-  public void update(String name, String description, Double price, Boolean available) {
+  public void update(String name, String description, Double price, Boolean available, FoodCategory category) {
     if (name != null) this.name = name;
 
     if (description != null) this.description = description;
@@ -128,6 +128,8 @@ public class Product {
     if (price != null) this.price = price;
 
     if (available != null) this.available = available;
+
+    if (category != null) this.category = category;
   }
 
   @Override
