@@ -132,7 +132,12 @@ public class UserService {
     Customer customer = (Customer) user;
 
     if (dto.name() != null) customer.setName(dto.name());
-    if (dto.username() != null) customer.setUsername(dto.username());
+    if (dto.username() != null) {
+      User existing = userRepo.findByUsername(dto.username());
+      if (existing != null && !existing.getId().equals(id))
+        throw new BusinessRuleException("Username " + dto.username() + " is already in use");
+      customer.setUsername(dto.username());
+    }
     if (dto.password() != null) customer.setPassword(dto.password());
     
     return userRepo.save(customer);

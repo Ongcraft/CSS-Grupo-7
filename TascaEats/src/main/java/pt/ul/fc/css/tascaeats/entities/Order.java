@@ -212,32 +212,24 @@ public class Order {
       throw new InvalidInputException("Payment type does not match the one specified at order creation");
 
     switch (payment.getPaymentType()) {
-      case MULTIBANCO:  
+      case MULTIBANCO:
         if (!((MultibancoPayment) payment).getCardFlag().equals(((MultibancoPayment) this.payment).getCardFlag()))
           throw new InvalidInputException("Card flag does not match the one specified at order creation");
 
-        if (amount != total) 
+        if (amount != total)
           throw new InvalidInputException("Payment amount must be exactly the total for that type of payment");
-        break;    
+        break;
       case MBWAY:
         if (!((MBWayPayment) payment).getPhoneNumber().equals(((MBWayPayment) this.payment).getPhoneNumber()))
           throw new InvalidInputException("Phone number does not match the one specified at order creation");
 
-        if (amount != total) 
+        if (amount != total)
           throw new InvalidInputException("Payment amount must be exactly the total for that type of payment");
         break;
-        case CASH:
-        if (amount < total) 
+      case CASH:
+        if (amount < total)
           throw new InvalidInputException("Insufficient payment amount");
-    }
-
-
-    if (payment instanceof CashPayment) {
-      if (amount < total) 
-        throw new InvalidInputException("Insufficient payment amount");
-    } else {
-      if (amount != total) 
-        throw new InvalidInputException("Payment amount must be exactly the total for that type of payment");
+        break;
     }
 
     this.payment = payment;
