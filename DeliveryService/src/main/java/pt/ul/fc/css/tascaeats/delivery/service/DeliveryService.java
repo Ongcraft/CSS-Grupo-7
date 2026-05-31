@@ -48,21 +48,20 @@ public class DeliveryService {
   public void removeCourier(CourierDto dto) {
     courierRepository.deleteById(dto.id());
   }
-
+  
   @Transactional
   public void handleOrderReady(OrderDto dto) {
-    Order order = new Order(dto.orderId(), dto.street(), dto.city(), dto.postalCode());
+    Order order = orderRepository.findById(dto.orderId()).orElseGet(() -> new Order(dto.orderId(), dto.street(), dto.city(), dto.postalCode()));
+
+    Courier courier = courierRepository.findFirstByAvailableTrue().orElseThrow(() -> new IllegalStateException("No available couriers"));
+
+    order.assignCourier(courier);
+    courier.setAvailable(false);
+
+    courierRepository.save(courier);
     orderRepository.save(order);
 
-    courierRepository
-        .findFirstByAvailableTrue()
-        .ifPresent(courier -> {
-          order.assignCourier(courier);
-          courier.setAvailable(false);
-          courierRepository.save(courier);
-          orderRepository.save(order);
-          sender.sendCourierAssigned(new DeliveryEventDto(order.getId(), courier.getId()));
-        });
+    sender.sendCourierAssigned(new DeliveryEventDto(order.getId(), courier.getId()));
   }
 
   @Transactional
