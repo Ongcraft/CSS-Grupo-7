@@ -160,6 +160,21 @@ public class OrderService {
     return orderRepo.save(order);
   }
 
+  public Order assignCourierFromKafka(UUID orderId, UUID courierId) {
+    Order order = getOrderById(orderId);
+    User user = userRepo.findById(courierId).orElseThrow(() -> new EntityNotFoundException("Courier", courierId));
+
+    if (!(user instanceof Courier courier)) {
+        throw new BusinessRuleException("User with id=" + courierId + " is not a Courier");
+    }
+
+    order.assignCourier(courier);
+    courier.setUnavailable();
+    userRepo.save(courier);
+
+    return orderRepo.save(order);
+}
+
   public Order startDelivery(UUID orderId) {
     Order order = getOrderById(orderId);
     order.startDelivery();
