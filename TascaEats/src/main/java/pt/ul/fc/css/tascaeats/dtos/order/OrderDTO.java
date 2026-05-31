@@ -39,7 +39,7 @@ public record OrderDTO(
         order.getOrderItems().stream().map(OrderItemDTO::new).toList(),
         order.getProducts().stream().map(Product::getId).toList(),
         getUniqueRestaurants(order),
-        order.getCourier() != null ? order.getCourier().getId() : null,
+        order.getCourierId(),
         order.getTotal(),
         order.getPaymentType(),
         order.getAmountPaid(),
