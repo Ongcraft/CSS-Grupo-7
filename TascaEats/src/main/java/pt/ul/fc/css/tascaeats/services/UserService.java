@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import pt.ul.fc.css.tascaeats.common.dto.CourierDto;
 import pt.ul.fc.css.tascaeats.dtos.common.AddressDTO;
 import pt.ul.fc.css.tascaeats.dtos.user.CreateAdminDTO;
 import pt.ul.fc.css.tascaeats.dtos.user.CreateCourierDTO;
@@ -24,6 +25,7 @@ import pt.ul.fc.css.tascaeats.entities.User;
 import pt.ul.fc.css.tascaeats.enums.Role;
 import pt.ul.fc.css.tascaeats.exception.BusinessRuleException;
 import pt.ul.fc.css.tascaeats.exception.EntityNotFoundException;
+import pt.ul.fc.css.tascaeats.kafka.KafkaSender;
 import pt.ul.fc.css.tascaeats.repositories.UserRepository;
 
 @Service
@@ -32,8 +34,11 @@ public class UserService {
 
   private final UserRepository userRepo;
 
-  public UserService(UserRepository userRepo) {
+  private final KafkaSender kafkaSender;
+
+  public UserService(UserRepository userRepo, KafkaSender kafkaSender) {
     this.userRepo = userRepo;
+    this.kafkaSender = kafkaSender;
   }
 
   // A. Login com autenticação: Vamos fazer *mock*. Qualquer palavra-passe será
@@ -66,11 +71,28 @@ public class UserService {
   }
 
   public Courier registerCourier(CreateCourierDTO dto) {
+
     if (userRepo.findByUsername(dto.username()) != null) {
-      throw new BusinessRuleException("Username " + dto.username() + " is already in use");
+        throw new BusinessRuleException(
+            "Username " + dto.username() + " is already in use");
     }
-    Courier courier = new Courier(dto.name(), dto.username(), dto.password());
-    return userRepo.save(courier);
+
+    Courier courier = new Courier(
+        dto.name(),
+        dto.username(),
+        dto.password());
+
+    Courier saved = userRepo.save(courier);
+
+    kafkaSender.sendCourierRegistered(
+        new CourierDto(
+            saved.getId(),
+            saved.getName(),
+            saved.getUsername()
+        )
+    );
+
+    return saved;
   }
 
   // C. Gerir utilizadores: Verificar, remover e atualizar utilizadores.
@@ -79,9 +101,21 @@ public class UserService {
   }
 
   public boolean removeUser(UUID id) {
+
     User user = userRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("User", id));
 
+    if (user instanceof Courier courier) {
+        kafkaSender.sendCourierRemoved(
+            new CourierDto(
+                courier.getId(),
+                courier.getName(),
+                courier.getUsername()
+            )
+        );
+    }
+
     userRepo.delete(user);
+
     return !userRepo.findById(id).isPresent();
   }
 
@@ -120,7 +154,17 @@ public class UserService {
     if (dto.name() != null) courier.setName(dto.name());
     if (dto.password() != null) courier.setPassword(dto.password());
 
-    return userRepo.save(courier);
+    Courier saved = userRepo.save(courier);
+
+    kafkaSender.sendCourierUpdated(
+      new CourierDto(
+          saved.getId(),
+          saved.getName(),
+          saved.getUsername()
+      )
+    );
+
+    return saved;
   }
 
   public Customer updateCustomer(UUID id, UpdateCustomerDTO dto) {
