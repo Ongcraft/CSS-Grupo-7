@@ -135,22 +135,6 @@ public class OrderGrpcService extends OrderServiceGrpc.OrderServiceImplBase {
         }
     }
 
-    @Override
-    public void assignCourierToOrder(OrderIdRequest request,
-                                     StreamObserver<OrderResponse> responseObserver) {
-        try {
-            Order order = orderService.assignCourier(
-                    UUID.fromString(request.getOrderId())
-            );
-
-            responseObserver.onNext(toGrpcOrderResponse(order));
-            responseObserver.onCompleted();
-
-        } catch (Exception e) {
-            responseObserver.onError(e);
-        }
-    }
-
     private OrderResponse toGrpcOrderDTOResponse(OrderDTO order) {
         OrderResponse.Builder builder = OrderResponse.newBuilder()
                 .setId(order.id().toString())
@@ -199,8 +183,8 @@ public class OrderGrpcService extends OrderServiceGrpc.OrderServiceImplBase {
             builder.setCustomerId(order.getCustomer().getId().toString());
         }
 
-        if (order.getCourier() != null) {
-            builder.setCourierId(order.getCourier().getId().toString());
+        if (order.getCourierId() != null) {
+            builder.setCourierId(order.getCourierId().toString());
         }
 
         if (order.getDeliveryAddress() != null) {
