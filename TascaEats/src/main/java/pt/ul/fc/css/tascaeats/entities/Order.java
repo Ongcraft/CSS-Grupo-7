@@ -52,7 +52,7 @@ public class Order {
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> orderItems = new ArrayList<>();
 
-  @ManyToOne private Courier courier;
+  private UUID courierId;
 
   private double total;
 
@@ -112,11 +112,11 @@ public class Order {
   }
 
   public List<OrderItem> getOrderItems() {
-      return List.copyOf(orderItems);
+    return List.copyOf(orderItems);
   }
 
-  public Courier getCourier() {
-    return courier;
+  public UUID getCourierId() {
+    return courierId;
   }
 
   public double getTotal() {
@@ -259,11 +259,8 @@ public class Order {
   }
 
   /** Assigns a courier to the order. */
-  public void assignCourier(Courier courier) {
-    if (status != OrderStatus.READY)
-      throw new BusinessRuleException("Order must be ready before assigning courier");
-
-    this.courier = courier;
+  public void assignCourierId(UUID courierId) {
+    this.courierId = courierId;
   }
 
   /** Starts delivery. */
@@ -271,7 +268,7 @@ public class Order {
     if (status != OrderStatus.READY)
       throw new BusinessRuleException("Order is not ready for delivery");
 
-    if (courier == null)
+    if (courierId == null)
       throw new BusinessRuleException("Courier must be assigned before starting delivery");
 
     this.status = OrderStatus.DELIVERING;
