@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import pt.ul.fc.css.tascaeats.common.dto.CourierDto;
-import pt.ul.fc.css.tascaeats.dtos.common.AddressDTO;
 import pt.ul.fc.css.tascaeats.dtos.user.CreateAdminDTO;
 import pt.ul.fc.css.tascaeats.dtos.user.CreateCourierDTO;
 import pt.ul.fc.css.tascaeats.dtos.user.CreateCustomerDTO;

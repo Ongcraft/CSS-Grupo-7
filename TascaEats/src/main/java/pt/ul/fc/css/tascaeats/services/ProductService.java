@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.integration.IntegrationProperties.RSocket.Client;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
