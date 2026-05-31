@@ -112,15 +112,6 @@ public class OrderController {
     return ResponseEntity.ok(res);
   }
 
-  @PatchMapping("/{orderId}/assign") // /{courierId}
-  @Operation(summary = "Assign delivery person to order")
-  public ResponseEntity<OrderDTO> assignCourier(
-      @PathVariable UUID orderId) { // tirar courierId do path , @PathVariable UUID courierId
-    Order order = orderService.assignCourier(orderId);
-    OrderDTO res = new OrderDTO(order);
-    return ResponseEntity.ok(res);
-  }
-
   @PatchMapping("/{orderId}/start-delivery")
   @Operation(summary = "Start delivery")
   public ResponseEntity<OrderDTO> startDelivery(@PathVariable UUID orderId) {
