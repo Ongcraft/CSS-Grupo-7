@@ -29,7 +29,7 @@ public class KafkaEventListener {
       log.info("Received COURIER_ASSIGNED: {}", dto);
       orderService.assignCourierFromKafka(dto.orderId(), dto.courierId());
     } catch (Exception e) {
-      log.error("Error processing COURIER_ASSIGNED: {}", e.getMessage());
+      log.error("Error processing COURIER_ASSIGNED", e);
     }
   }
 
@@ -40,7 +40,7 @@ public class KafkaEventListener {
       log.info("Received DELIVERY_STARTED: {}", dto);
       orderService.startDelivery(dto.orderId());
     } catch (Exception e) {
-      log.error("Error processing DELIVERY_STARTED: {}", e.getMessage());
+      log.error("Error processing DELIVERY_STARTED", e);
     }
   }
 
@@ -51,7 +51,7 @@ public class KafkaEventListener {
       log.info("Received DELIVERY_COMPLETED: {}", dto);
       orderService.completeDelivery(dto.orderId());
     } catch (Exception e) {
-      log.error("Error processing DELIVERY_COMPLETED: {}", e.getMessage());
+      log.error("Error processing DELIVERY_COMPLETED", e);
     }
   }
 }
