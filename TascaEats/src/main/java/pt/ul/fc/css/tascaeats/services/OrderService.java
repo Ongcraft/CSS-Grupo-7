@@ -8,12 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.dtos.order.AddProductDTO;
 import pt.ul.fc.css.tascaeats.dtos.order.CreateOrderDTO;
 import pt.ul.fc.css.tascaeats.dtos.order.OrderDTO;
+import pt.ul.fc.css.tascaeats.common.dto.OrderDto;
 import pt.ul.fc.css.tascaeats.dtos.order.PaymentDTO;
 import pt.ul.fc.css.tascaeats.dtos.order.PaymentInfoDTO;
 import pt.ul.fc.css.tascaeats.dtos.order.RemoveProductDTO;
 import pt.ul.fc.css.tascaeats.entities.*;
 import pt.ul.fc.css.tascaeats.exception.BusinessRuleException;
 import pt.ul.fc.css.tascaeats.exception.EntityNotFoundException;
+import pt.ul.fc.css.tascaeats.kafka.KafkaSender;
 import pt.ul.fc.css.tascaeats.repositories.OrderRepository;
 import pt.ul.fc.css.tascaeats.repositories.ProductRepository;
 import pt.ul.fc.css.tascaeats.repositories.RestaurantRepository;
@@ -27,16 +29,19 @@ public class OrderService {
   private ProductRepository productRepo;
   private OrderRepository orderRepo;
   private UserRepository userRepo;
+  private final KafkaSender kafkaSender;
 
   public OrderService(
       OrderRepository orderRepo,
       UserRepository userRepo,
       RestaurantRepository restaurantRepo,
-      ProductRepository productRepo) {
+      ProductRepository productRepo,
+      KafkaSender kafkaSender) {
     this.restaurantRepo = restaurantRepo;
     this.productRepo = productRepo;
     this.orderRepo = orderRepo;
     this.userRepo = userRepo;
+    this.kafkaSender = kafkaSender;
   }
 
   public Order getOrderById(UUID id) {
@@ -143,37 +148,28 @@ public class OrderService {
   public Order markOrderReady(UUID orderId) {
     Order order = getOrderById(orderId);
     order.markAsReady();
-    return orderRepo.save(order);
-  }
-  
-  public Order assignCourier(UUID orderId) { // , UUID courierId
-    Order order = getOrderById(orderId);
 
-    Courier courier = (Courier)
-            userRepo
-                .findAllAvailableCouriers()
-                .stream().findFirst()
-                .orElseThrow(() -> new BusinessRuleException("There are no available couriers at the moment"));
+    Order saved = orderRepo.save(order);
 
-    order.assignCourier(courier);
-    courier.setUnavailable();
-    return orderRepo.save(order);
+    kafkaSender.sendOrderReady(
+        new OrderDto(
+            saved.getId(),
+            saved.getDeliveryAddress().getStreet(),
+            saved.getDeliveryAddress().getCity(),
+            saved.getDeliveryAddress().getPostalCode()
+        )
+    );
+
+    return saved;
   }
 
   public Order assignCourierFromKafka(UUID orderId, UUID courierId) {
     Order order = getOrderById(orderId);
-    User user = userRepo.findById(courierId).orElseThrow(() -> new EntityNotFoundException("Courier", courierId));
 
-    if (!(user instanceof Courier courier)) {
-        throw new BusinessRuleException("User with id=" + courierId + " is not a Courier");
-    }
-
-    order.assignCourier(courier);
-    courier.setUnavailable();
-    userRepo.save(courier);
-
+    order.assignCourierId(courierId);
+    
     return orderRepo.save(order);
-}
+  }
 
   public Order startDelivery(UUID orderId) {
     Order order = getOrderById(orderId);
@@ -183,10 +179,10 @@ public class OrderService {
 
   public Order completeDelivery(UUID orderId) {
     Order order = getOrderById(orderId);
+
     order.completeDelivery();
     order.getCustomer().incrementOrderCount();
-    order.getCourier().incrementDeliveryCount();
-    order.getCourier().setAvailable();
+
     return orderRepo.save(order);
   }
 
@@ -205,7 +201,7 @@ public class OrderService {
 
   public List<Order> getOrdersByCourierId(UUID courierId) {
     return orderRepo.findAll().stream()
-        .filter(o -> o.getCourier() != null && o.getCourier().getId().equals(courierId))
+        .filter(o -> courierId.equals(o.getCourierId()))
         .toList();
   }
 }
