@@ -30,7 +30,7 @@ public class Listener {
       log.info("Received COURIER_REGISTERED: {}", dto);
       deliveryService.registerCourier(dto);
     } catch (Exception e) {
-      log.error("Error processing COURIER_REGISTERED: {}", e.getMessage());
+      log.error("Error processing COURIER_REGISTERED", e);
     }
   }
 
@@ -41,7 +41,7 @@ public class Listener {
       log.info("Received COURIER_UPDATED: {}", dto);
       deliveryService.updateCourier(dto);
     } catch (Exception e) {
-      log.error("Error processing COURIER_UPDATED: {}", e.getMessage());
+      log.error("Error processing COURIER_UPDATED", e);
     }
   }
 
@@ -52,7 +52,7 @@ public class Listener {
       log.info("Received COURIER_REMOVED: {}", dto);
       deliveryService.removeCourier(dto);
     } catch (Exception e) {
-      log.error("Error processing COURIER_REMOVED: {}", e.getMessage());
+      log.error("Error processing COURIER_REMOVED", e);
     }
   }
 
@@ -63,7 +63,7 @@ public class Listener {
       log.info("Received ORDER_READY: {}", dto);
       deliveryService.handleOrderReady(dto);
     } catch (Exception e) {
-      log.error("Error processing ORDER_READY: {}", e.getMessage());
+      log.error("Error processing ORDER_READY", e);
     }
   }
 }
