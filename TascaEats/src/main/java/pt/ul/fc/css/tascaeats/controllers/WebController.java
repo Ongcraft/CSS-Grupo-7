@@ -362,6 +362,36 @@ public class WebController {
         }
     }
 
+    @PostMapping("/order/prepare")
+    public String prepareOrder(@RequestParam("orderId") UUID orderId, HttpSession session, RedirectAttributes ra) {
+        UserDTO user = (UserDTO) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/web/login";
+
+        try {
+            orderService.prepareOrder(orderId);
+            ra.addFlashAttribute("success", "Pedido em preparação.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/web/order?id=" + orderId;
+    }
+
+    @PostMapping("/order/ready")
+    public String markOrderReady(@RequestParam("orderId") UUID orderId, HttpSession session, RedirectAttributes ra) {
+        UserDTO user = (UserDTO) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/web/login";
+
+        try {
+            orderService.markOrderReady(orderId); // aqui envia ORDER_READY para Kafka
+            ra.addFlashAttribute("success", "Pedido pronto para entrega.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/web/order?id=" + orderId;
+    }
+
     @GetMapping("/restaurants")
     public String restaurantsList(HttpSession session, Model model) {
         UserDTO user = (UserDTO) session.getAttribute("loggedUser");
