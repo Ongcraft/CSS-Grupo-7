@@ -167,6 +167,7 @@ public class OrderService {
     Order order = getOrderById(orderId);
 
     order.assignCourierId(courierId);
+    order.startDelivery();
     
     return orderRepo.save(order);
   }
