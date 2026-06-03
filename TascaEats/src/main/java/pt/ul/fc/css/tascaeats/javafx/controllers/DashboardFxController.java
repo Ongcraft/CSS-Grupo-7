@@ -927,7 +927,7 @@ public class DashboardFxController {
             Parent root = loader.load();
 
             Stage stage = (Stage) contentBox.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 400, 300));
             stage.setTitle("TascaEats - Login");
             stage.show();
 
