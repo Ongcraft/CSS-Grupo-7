@@ -1,9 +1,14 @@
 package pt.ul.fc.css.tascaeats.javafx.controllers;
 
+import java.io.IOException;
+
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-
+import javafx.stage.Stage;
 import pt.ul.fc.css.tascaeats.enums.KitchenType;
 import pt.ul.fc.css.tascaeats.enums.FoodCategory;
 import pt.ul.fc.css.tascaeats.javafx.grpc.GrpcClient;
@@ -44,14 +49,16 @@ public class DashboardFxController {
         Button productsBtn = new Button("Gerir Produtos");
         Button usersBtn = new Button("Gerir Users");
         Button ordersBtn = new Button("Gerir Pedidos");
+        Button logoutBtn = new Button("Logout");
 
         restaurantsBtn.setOnAction(e -> showAdminRestaurants());
         menusBtn.setOnAction(e -> showAdminMenus());
         productsBtn.setOnAction(e -> showAdminProducts());
         usersBtn.setOnAction(e -> showAdminUsers());
         ordersBtn.setOnAction(e -> showAdminOrders());
+        logoutBtn.setOnAction(e -> handleLogout());
 
-        contentBox.getChildren().addAll(restaurantsBtn, menusBtn, productsBtn, usersBtn, ordersBtn);
+        contentBox.getChildren().addAll(restaurantsBtn, menusBtn, productsBtn, usersBtn, ordersBtn, logoutBtn);
     }
 
     // ================= USERS =================
@@ -809,10 +816,12 @@ public class DashboardFxController {
         contentBox.getChildren().clear();
 
         Button ordersBtn = new Button("Ver Pedidos");
+        Button logoutBtn = new Button("Logout");
 
         ordersBtn.setOnAction(e -> showCourierOrders());
+        logoutBtn.setOnAction(e -> handleLogout());
 
-        contentBox.getChildren().add(ordersBtn);
+        contentBox.getChildren().addAll(ordersBtn, logoutBtn);
     }
 
     private void showCourierOrders() {
@@ -903,5 +912,27 @@ public class DashboardFxController {
 
     private void addBackButtonAtBottom() {
         contentBox.getChildren().add(backButton());
+    }
+
+    @FXML
+    private void handleLogout() {
+        try {
+            this.userId = null;
+            this.role = null;
+
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/javafx/login.fxml")
+            );
+
+            Parent root = loader.load();
+
+            Stage stage = (Stage) contentBox.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("TascaEats - Login");
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
